@@ -1,0 +1,23 @@
+{
+    "configurations": [
+        {
+            "name": "MSYS2 UCRT64",
+            "compilerPath": "C:/msys64/ucrt64/bin/g++.exe",
+            "compilerArgs": [
+                "-std=c++26",
+                "-Wall",
+                "-Wextra",
+                "-Wpedantic",
+                "-freflection"
+            ],
+            "intelliSenseMode": "windows-gcc-x64",
+            "cppStandard": "c++26",
+            "cStandard": "c23",
+            "includePath": [
+                "${workspaceFolder}/include",
+                "${workspaceFolder}/**"
+            ]
+        }
+    ],
+    "version": 4
+}

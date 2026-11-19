@@ -8,7 +8,7 @@ workspace "Cpu"
     location "build"
 
     language "C++"
-    cppdialect "C++20"
+    cppdialect "C++26"
 
     toolset "gcc"
 
@@ -44,6 +44,12 @@ project "Cpu"
     }
 
     filter "files:**.cpp"
-        buildoptions { "-Wall", "-Wextra", "-Wpedantic" }
+        buildoptions {
+            "-std=c++26",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-freflection"
+    }
 
     filter {}
