@@ -1,0 +1,32 @@
+
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Generate Ninja files",
+            "type": "process",
+            "command": "D:\\premake-5.0.0-windows\\premake5.exe",
+            "args": ["ninja"],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Build CPU",
+            "type": "process",
+            "command": "C:\\msys64\\ucrt64\\bin\\ninja.exe",
+            "args": ["-C", "build"],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "dependsOn": "Generate Ninja files",
+            "dependsOrder": "sequence",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        }
+    ]
+}
