@@ -56,13 +56,13 @@ cflags_Benchmarks_Debug = -m64 -O0 -g -Wall -Wextra -D"DEBUG" -I../include -Wall
 cxxflags_Benchmarks_Debug = -m64 -O0 -g -Wall -Wextra -std=c++26 -D"DEBUG" -I../include -Wall -Wextra -Wpedantic -Wconversion -Wcast-align -Wunused -Wshadow -freflection -O0
 ldflags_Benchmarks_Debug = -m64 -L/usr/lib64
 links_Benchmarks_Debug = -lbenchmark -lbenchmark_main
-objdir_Benchmarks_Debug = obj/Debug/Debug/Benchmarks
+objdir_Benchmarks_Debug = obj/Benchmarks/Debug
 targetdir_Benchmarks_Debug = bin/Debug
 target_Benchmarks_Debug = Benchmarks.exe
 
-build obj/Debug/Debug/Benchmarks/test.o: cxx_gcc ../benchmarks/test.cpp
+build obj/Benchmarks/Debug/example.o: cxx_gcc ../benchmarks/example.cpp
   cxxflags = $cxxflags_Benchmarks_Debug
-build bin/Debug/Benchmarks.exe: link_gcc obj/Debug/Debug/Benchmarks/test.o
+build bin/Debug/Benchmarks.exe: link_gcc obj/Benchmarks/Debug/example.o
   ldflags = $ldflags_Benchmarks_Debug
   links = $links_Benchmarks_Debug
 
@@ -72,13 +72,13 @@ cflags_Benchmarks_Release = -m64 -O3 -g -Wall -Wextra -D"NDEBUG" -I../include -W
 cxxflags_Benchmarks_Release = -m64 -O3 -g -Wall -Wextra -std=c++26 -D"NDEBUG" -I../include -Wall -Wextra -Wpedantic -Wconversion -Wcast-align -Wunused -Wshadow -freflection -O3 -march=x86-64 -flto -mtune=native -fomit-frame-pointer
 ldflags_Benchmarks_Release = -m64 -flto -L/usr/lib64
 links_Benchmarks_Release = -lbenchmark -lbenchmark_main
-objdir_Benchmarks_Release = obj/Release/Release/Benchmarks
+objdir_Benchmarks_Release = obj/Benchmarks/Release
 targetdir_Benchmarks_Release = bin/Release
 target_Benchmarks_Release = Benchmarks.exe
 
-build obj/Release/Release/Benchmarks/test.o: cxx_gcc ../benchmarks/test.cpp
+build obj/Benchmarks/Release/example.o: cxx_gcc ../benchmarks/example.cpp
   cxxflags = $cxxflags_Benchmarks_Release
-build bin/Release/Benchmarks.exe: link_gcc obj/Release/Release/Benchmarks/test.o
+build bin/Release/Benchmarks.exe: link_gcc obj/Benchmarks/Release/example.o
   ldflags = $ldflags_Benchmarks_Release
   links = $links_Benchmarks_Release
 
@@ -88,13 +88,13 @@ cflags_Benchmarks_Native = -m64 -O3 -g -Wall -Wextra -D"NDEBUG" -I../include -Wa
 cxxflags_Benchmarks_Native = -m64 -O3 -g -Wall -Wextra -std=c++26 -D"NDEBUG" -I../include -Wall -Wextra -Wpedantic -Wconversion -Wcast-align -Wunused -Wshadow -freflection -Ofast -march=native -mtune=native -fomit-frame-pointer -flto
 ldflags_Benchmarks_Native = -m64 -L/usr/lib64
 links_Benchmarks_Native = -lbenchmark -lbenchmark_main
-objdir_Benchmarks_Native = obj/Native/Native/Benchmarks
+objdir_Benchmarks_Native = obj/Benchmarks/Native
 targetdir_Benchmarks_Native = bin/Native
 target_Benchmarks_Native = Benchmarks.exe
 
-build obj/Native/Native/Benchmarks/test.o: cxx_gcc ../benchmarks/test.cpp
+build obj/Benchmarks/Native/example.o: cxx_gcc ../benchmarks/example.cpp
   cxxflags = $cxxflags_Benchmarks_Native
-build bin/Native/Benchmarks.exe: link_gcc obj/Native/Native/Benchmarks/test.o
+build bin/Native/Benchmarks.exe: link_gcc obj/Benchmarks/Native/example.o
   ldflags = $ldflags_Benchmarks_Native
   links = $links_Benchmarks_Native
 

@@ -16,8 +16,7 @@ workspace "Cpu"
 
     -- Executable output and object file directories
     targetdir ("build/bin/%{cfg.buildcfg}")
-    objdir ("build/obj/%{cfg.buildcfg}")
-
+    objdir ("build/obj/%{prj.name}/%{cfg.buildcfg}")
 
     filter "configurations:Debug"
         symbols "On"
@@ -119,6 +118,11 @@ project "Benchmarks"
         "include/**.tpp",
 
     }
+    
+    removefiles {
+        "benchmarks/exclude/**.cpp"
+    }
+
 
     includedirs {
         "include"

@@ -270,9 +270,9 @@
 
         // == CPU ==
         {
-            "label": "Run Benchmark Debug",
+            "label": "Run Benchmarks Debug",
             "type": "process",
-            "command": "${workspaceFolder}/build/bin/Debug/Benchmark.exe",
+            "command": "${workspaceFolder}/build/bin/Debug/Benchmarks.exe",
             "options": {
                 "cwd": "${workspaceFolder}"
             },
@@ -289,9 +289,9 @@
             "problemMatcher": []
         },
         {
-            "label": "Run Benchmark Release",
+            "label": "Run Benchmarks Release",
             "type": "process",
-            "command": "${workspaceFolder}/build/bin/Release/Benchmark.exe",
+            "command": "${workspaceFolder}/build/bin/Release/Benchmarks.exe",
             "options": {
                 "cwd": "${workspaceFolder}"
             },
@@ -308,9 +308,9 @@
             "problemMatcher": []
         },
         {
-            "label": "Run Benchmark Native",
+            "label": "Run Benchmarks Native",
             "type": "process",
-            "command": "${workspaceFolder}/build/bin/Native/Benchmark.exe",
+            "command": "${workspaceFolder}/build/bin/Native/Benchmarks.exe",
             "options": {
                 "cwd": "${workspaceFolder}"
             },
