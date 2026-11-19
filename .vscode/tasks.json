@@ -13,10 +13,10 @@
             "problemMatcher": []
         },
         {
-            "label": "Build CPU",
+            "label": "Build Debug",
             "type": "process",
             "command": "C:\\msys64\\ucrt64\\bin\\ninja.exe",
-            "args": ["-C", "build"],
+            "args": ["-C", "build", "-f", "Cpu.ninja", "Cpu_Debug"],
             "options": {
                 "cwd": "${workspaceFolder}"
             },
@@ -26,6 +26,18 @@
                 "kind": "build",
                 "isDefault": true
             },
+            "problemMatcher": []
+        },
+        {
+            "label": "Build Release",
+            "type": "process",
+            "command": "C:\\msys64\\ucrt64\\bin\\ninja.exe",
+            "args": ["-C", "build", "-f", "Cpu.ninja", "Cpu_Release"],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "dependsOn": "Generate Ninja files",
+            "dependsOrder": "sequence",
             "problemMatcher": []
         }
     ]
