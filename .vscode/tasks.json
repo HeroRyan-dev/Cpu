@@ -1,4 +1,3 @@
-
 {
     "version": "2.0.0",
     "tasks": [
@@ -9,6 +8,13 @@
             "args": ["ninja"],
             "options": {
                 "cwd": "${workspaceFolder}"
+            },
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false
             },
             "problemMatcher": []
         },
@@ -26,6 +32,13 @@
                 "kind": "build",
                 "isDefault": true
             },
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false
+            },
             "problemMatcher": []
         },
         {
@@ -38,6 +51,51 @@
             },
             "dependsOn": "Generate Ninja files",
             "dependsOrder": "sequence",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run Debug",
+            "type": "process",
+            "command": "${workspaceFolder}/build/bin/Debug/Cpu.exe",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "dependsOn": "Build Debug",
+            "dependsOrder": "sequence",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "clear": true,
+                "showReuseMessage": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run Release",
+            "type": "process",
+            "command": "${workspaceFolder}/build/bin/Release/Cpu.exe",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "dependsOn": "Build Release",
+            "dependsOrder": "sequence",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "clear": true,
+                "showReuseMessage": false
+            },
             "problemMatcher": []
         }
     ]
