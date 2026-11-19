@@ -60,9 +60,9 @@ objdir_Benchmarks_Debug = obj/Benchmarks/Debug
 targetdir_Benchmarks_Debug = bin/Debug
 target_Benchmarks_Debug = Benchmarks.exe
 
-build obj/Benchmarks/Debug/RegisterBenchmarks.o: cxx_gcc ../benchmarks/RegisterBenchmarks.cpp
+build obj/Benchmarks/Debug/RegisterBenchmark2.o: cxx_gcc ../benchmarks/RegisterBenchmark2.cpp
   cxxflags = $cxxflags_Benchmarks_Debug
-build bin/Debug/Benchmarks.exe: link_gcc obj/Benchmarks/Debug/RegisterBenchmarks.o
+build bin/Debug/Benchmarks.exe: link_gcc obj/Benchmarks/Debug/RegisterBenchmark2.o
   ldflags = $ldflags_Benchmarks_Debug
   links = $links_Benchmarks_Debug
 
@@ -76,9 +76,9 @@ objdir_Benchmarks_Release = obj/Benchmarks/Release
 targetdir_Benchmarks_Release = bin/Release
 target_Benchmarks_Release = Benchmarks.exe
 
-build obj/Benchmarks/Release/RegisterBenchmarks.o: cxx_gcc ../benchmarks/RegisterBenchmarks.cpp
+build obj/Benchmarks/Release/RegisterBenchmark2.o: cxx_gcc ../benchmarks/RegisterBenchmark2.cpp
   cxxflags = $cxxflags_Benchmarks_Release
-build bin/Release/Benchmarks.exe: link_gcc obj/Benchmarks/Release/RegisterBenchmarks.o
+build bin/Release/Benchmarks.exe: link_gcc obj/Benchmarks/Release/RegisterBenchmark2.o
   ldflags = $ldflags_Benchmarks_Release
   links = $links_Benchmarks_Release
 
@@ -92,9 +92,9 @@ objdir_Benchmarks_Native = obj/Benchmarks/Native
 targetdir_Benchmarks_Native = bin/Native
 target_Benchmarks_Native = Benchmarks.exe
 
-build obj/Benchmarks/Native/RegisterBenchmarks.o: cxx_gcc ../benchmarks/RegisterBenchmarks.cpp
+build obj/Benchmarks/Native/RegisterBenchmark2.o: cxx_gcc ../benchmarks/RegisterBenchmark2.cpp
   cxxflags = $cxxflags_Benchmarks_Native
-build bin/Native/Benchmarks.exe: link_gcc obj/Benchmarks/Native/RegisterBenchmarks.o
+build bin/Native/Benchmarks.exe: link_gcc obj/Benchmarks/Native/RegisterBenchmark2.o
   ldflags = $ldflags_Benchmarks_Native
   links = $links_Benchmarks_Native
 
