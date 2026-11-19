@@ -52,8 +52,8 @@ rule custom
 
 # Configuration: Benchmarks_Debug
 
-cflags_Benchmarks_Debug = -m64 -O0 -g -Wall -Wextra -D"DEBUG" -I../include -Wall -Wextra -Wpedantic -Wconversion -Wcast-align -Wunused -Wshadow -freflection -O0 -g
-cxxflags_Benchmarks_Debug = -m64 -O0 -g -Wall -Wextra -std=c++26 -D"DEBUG" -I../include -Wall -Wextra -Wpedantic -Wconversion -Wcast-align -Wunused -Wshadow -freflection -O0 -g
+cflags_Benchmarks_Debug = -m64 -O0 -g -Wall -Wextra -D"DEBUG" -I../include -Wall -Wextra -Wpedantic -Wconversion -Wcast-align -Wunused -Wshadow -freflection -O0
+cxxflags_Benchmarks_Debug = -m64 -O0 -g -Wall -Wextra -std=c++26 -D"DEBUG" -I../include -Wall -Wextra -Wpedantic -Wconversion -Wcast-align -Wunused -Wshadow -freflection -O0
 ldflags_Benchmarks_Debug = -m64 -L/usr/lib64
 links_Benchmarks_Debug = -lbenchmark -lbenchmark_main
 objdir_Benchmarks_Debug = obj/Debug/Debug/Benchmarks

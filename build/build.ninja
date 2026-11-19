@@ -3,11 +3,12 @@ ninja_required_version = 1.6
 
 subninja Benchmarks.ninja
 subninja Cpu.ninja
+subninja Tests.ninja
 
 # Default build target
-default Benchmarks_Debug Cpu_Debug
+default Benchmarks_Debug Cpu_Debug Tests_Debug
 
 # Workspace configuration targets
-build Debug: phony Benchmarks_Debug Cpu_Debug
-build Native: phony Benchmarks_Native Cpu_Native
-build Release: phony Benchmarks_Release Cpu_Release
+build Debug: phony Benchmarks_Debug Cpu_Debug Tests_Debug
+build Native: phony Benchmarks_Native Cpu_Native Tests_Native
+build Release: phony Benchmarks_Release Cpu_Release Tests_Release

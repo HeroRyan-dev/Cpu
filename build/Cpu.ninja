@@ -52,8 +52,8 @@ rule custom
 
 # Configuration: Cpu_Debug
 
-cflags_Cpu_Debug = -m64 -O0 -g -Wall -Wextra -D"DEBUG" -I../include -Wall -Wextra -Wpedantic -Wconversion -Wcast-align -Wunused -Wshadow -freflection -O0 -g
-cxxflags_Cpu_Debug = -m64 -O0 -g -Wall -Wextra -std=c++26 -D"DEBUG" -I../include -Wall -Wextra -Wpedantic -Wconversion -Wcast-align -Wunused -Wshadow -freflection -O0 -g
+cflags_Cpu_Debug = -m64 -O0 -g -Wall -Wextra -D"DEBUG" -I../include -Wall -Wextra -Wpedantic -Wconversion -Wcast-align -Wunused -Wshadow -freflection -O0
+cxxflags_Cpu_Debug = -m64 -O0 -g -Wall -Wextra -std=c++26 -D"DEBUG" -I../include -Wall -Wextra -Wpedantic -Wconversion -Wcast-align -Wunused -Wshadow -freflection -O0
 ldflags_Cpu_Debug = -m64 -L/usr/lib64
 objdir_Cpu_Debug = obj/Debug/Debug/Cpu
 targetdir_Cpu_Debug = bin/Debug
@@ -82,7 +82,7 @@ build bin/Release/Cpu.exe: link_gcc obj/Release/Release/Cpu/main.o
 
 cflags_Cpu_Native = -m64 -O3 -g -Wall -Wextra -D"NDEBUG" -I../include -Wall -Wextra -Wpedantic -Wconversion -Wcast-align -Wunused -Wshadow -freflection -Ofast -march=native -mtune=native -fomit-frame-pointer -flto
 cxxflags_Cpu_Native = -m64 -O3 -g -Wall -Wextra -std=c++26 -D"NDEBUG" -I../include -Wall -Wextra -Wpedantic -Wconversion -Wcast-align -Wunused -Wshadow -freflection -Ofast -march=native -mtune=native -fomit-frame-pointer -flto
-ldflags_Cpu_Native = -m64 -L/usr/lib64
+ldflags_Cpu_Native = -m64 -flto -L/usr/lib64
 objdir_Cpu_Native = obj/Native/Native/Cpu
 targetdir_Cpu_Native = bin/Native
 target_Cpu_Native = Cpu.exe

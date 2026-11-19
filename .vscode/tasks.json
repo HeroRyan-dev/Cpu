@@ -4,7 +4,7 @@
         {
             "label": "Generate Ninja files",
             "type": "process",
-            "command": "D:\\premake-5.0.0-windows\\premake5.exe",
+            "command": "D:\\Tools\\Premake\\premake5.exe",
             "args": ["ninja"],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -18,8 +18,15 @@
             },
             "problemMatcher": []
         },
+        
+    // |---------------------------------------------+
+    // |                    BUILD
+    // |---------------------------------------------+
+        
+
+        // == CPU ==
         {
-            "label": "Build Debug",
+            "label": "Build CPU Debug",
             "type": "process",
             "command": "C:\\msys64\\ucrt64\\bin\\ninja.exe",
             "args": ["-C", "build", "-f", "Cpu.ninja", "Cpu_Debug"],
@@ -39,10 +46,10 @@
                 "panel": "shared",
                 "showReuseMessage": false
             },
-            "problemMatcher": []
+            "problemMatcher": ["$gcc"]
         },
         {
-            "label": "Build Release",
+            "label": "Build CPU Release",
             "type": "process",
             "command": "C:\\msys64\\ucrt64\\bin\\ninja.exe",
             "args": ["-C", "build", "-f", "Cpu.ninja", "Cpu_Release"],
@@ -58,16 +65,159 @@
                 "panel": "shared",
                 "showReuseMessage": false
             },
-            "problemMatcher": []
+            "problemMatcher": ["$gcc"]
         },
         {
-            "label": "Run Debug",
+            "label": "Build CPU Native",
+            "type": "process",
+            "command": "C:\\msys64\\ucrt64\\bin\\ninja.exe",
+            "args": ["-C", "build", "-f", "Cpu.ninja", "Cpu_Native"],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "dependsOn": "Generate Ninja files",
+            "dependsOrder": "sequence",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false
+            },
+            "problemMatcher": ["$gcc"]
+        },
+        
+        // == BENCHMARKS ==
+        {
+            "label": "Build Benchmarks Debug",
+            "type": "process",
+            "command": "C:\\msys64\\ucrt64\\bin\\ninja.exe",
+            "args": ["-C", "build", "-f", "Benchmarks.ninja", "Benchmarks_Debug"],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "dependsOn": "Generate Ninja files",
+            "dependsOrder": "sequence",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false
+            },
+            "problemMatcher": ["$gcc"]
+        },
+        {
+            "label": "Build Benchmarks Release",
+            "type": "process",
+            "command": "C:\\msys64\\ucrt64\\bin\\ninja.exe",
+            "args": ["-C", "build", "-f", "Benchmarks.ninja", "Benchmarks_Release"],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "dependsOn": "Generate Ninja files",
+            "dependsOrder": "sequence",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false
+            },
+            "problemMatcher": ["$gcc"]
+        },
+        {
+            "label": "Build Benchmarks Native",
+            "type": "process",
+            "command": "C:\\msys64\\ucrt64\\bin\\ninja.exe",
+            "args": ["-C", "build", "-f", "Benchmarks.ninja", "Benchmarks_Native"],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "dependsOn": "Generate Ninja files",
+            "dependsOrder": "sequence",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false
+            },
+            "problemMatcher": ["$gcc"]
+        },
+        
+        // == TESTS ==
+        {
+            "label": "Build Tests Debug",
+            "type": "process",
+            "command": "C:\\msys64\\ucrt64\\bin\\ninja.exe",
+            "args": ["-C", "build", "-f", "Tests.ninja", "Tests_Debug"],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "dependsOn": "Generate Ninja files",
+            "dependsOrder": "sequence",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false
+            },
+            "problemMatcher": ["$gcc"]
+        },
+        {
+            "label": "Build Tests Release",
+            "type": "process",
+            "command": "C:\\msys64\\ucrt64\\bin\\ninja.exe",
+            "args": ["-C", "build", "-f", "Tests.ninja", "Tests_Release"],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "dependsOn": "Generate Ninja files",
+            "dependsOrder": "sequence",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false
+            },
+            "problemMatcher": ["$gcc"]
+        },
+        {
+            "label": "Build Tests Native",
+            "type": "process",
+            "command": "C:\\msys64\\ucrt64\\bin\\ninja.exe",
+            "args": ["-C", "build", "-f", "Tests.ninja", "Tests_Native"],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "dependsOn": "Generate Ninja files",
+            "dependsOrder": "sequence",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false
+            },
+            "problemMatcher": ["$gcc"]
+        },
+
+    // |---------------------------------------------+
+    // |                    RUN
+    // |---------------------------------------------+
+        
+        // == CPU ==
+        {
+            "label": "Run CPU Debug",
             "type": "process",
             "command": "${workspaceFolder}/build/bin/Debug/Cpu.exe",
             "options": {
                 "cwd": "${workspaceFolder}"
             },
-            "dependsOn": "Build Debug",
+            "dependsOn": "Build CPU Debug",
             "dependsOrder": "sequence",
             "presentation": {
                 "echo": false,
@@ -80,13 +230,13 @@
             "problemMatcher": []
         },
         {
-            "label": "Run Release",
+            "label": "Run CPU Release",
             "type": "process",
             "command": "${workspaceFolder}/build/bin/Release/Cpu.exe",
             "options": {
                 "cwd": "${workspaceFolder}"
             },
-            "dependsOn": "Build Release",
+            "dependsOn": "Build CPU Release",
             "dependsOrder": "sequence",
             "presentation": {
                 "echo": false,
@@ -97,6 +247,143 @@
                 "showReuseMessage": false
             },
             "problemMatcher": []
-        }
+        },
+        {
+            "label": "Run CPU Native",
+            "type": "process",
+            "command": "${workspaceFolder}/build/bin/Native/Cpu.exe",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "dependsOn": "Build CPU Native",
+            "dependsOrder": "sequence",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "clear": true,
+                "showReuseMessage": false
+            },
+            "problemMatcher": []
+        },
+
+        // == CPU ==
+        {
+            "label": "Run Benchmark Debug",
+            "type": "process",
+            "command": "${workspaceFolder}/build/bin/Debug/Benchmark.exe",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "dependsOn": "Build Benchmark Debug",
+            "dependsOrder": "sequence",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "clear": true,
+                "showReuseMessage": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run Benchmark Release",
+            "type": "process",
+            "command": "${workspaceFolder}/build/bin/Release/Benchmark.exe",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "dependsOn": "Build Benchmark Release",
+            "dependsOrder": "sequence",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "clear": true,
+                "showReuseMessage": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run Benchmark Native",
+            "type": "process",
+            "command": "${workspaceFolder}/build/bin/Native/Benchmark.exe",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "dependsOn": "Build Benchmark Native",
+            "dependsOrder": "sequence",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "clear": true,
+                "showReuseMessage": false
+            },
+            "problemMatcher": []
+        },
+        
+        // == TESTS ==
+        {
+            "label": "Run Tests Debug",
+            "type": "process",
+            "command": "${workspaceFolder}/build/bin/Debug/Tests.exe",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "dependsOn": "Build Tests Debug",
+            "dependsOrder": "sequence",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "clear": true,
+                "showReuseMessage": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run Tests Release",
+            "type": "process",
+            "command": "${workspaceFolder}/build/bin/Release/Tests.exe",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "dependsOn": "Build Tests Release",
+            "dependsOrder": "sequence",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "clear": true,
+                "showReuseMessage": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run Tests Native",
+            "type": "process",
+            "command": "${workspaceFolder}/build/bin/Native/Tests.exe",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "dependsOn": "Build Tests Native",
+            "dependsOrder": "sequence",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "clear": true,
+                "showReuseMessage": false
+            },
+            "problemMatcher": []
+        },
     ]
 }
