@@ -295,7 +295,7 @@
             "options": {
                 "cwd": "${workspaceFolder}"
             },
-            "dependsOn": "Build Benchmark Release",
+            "dependsOn": "Build Benchmarks Release",
             "dependsOrder": "sequence",
             "presentation": {
                 "echo": false,

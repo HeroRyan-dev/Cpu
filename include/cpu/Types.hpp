@@ -13,7 +13,6 @@ namespace cpu
     using byte_t = std::uint8_t;
     using word = std::uint32_t; // Natural data width
     using dword = std::uint64_t;
-    using qword = unsigned __int128;
 
     using address_t = std::uint32_t;
     using instruction_t = std::uint32_t;
