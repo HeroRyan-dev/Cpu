@@ -1,34 +1,67 @@
+/*
+    Cpu\include\cpu\Memory.hpp
+    Defines the Memory class for the CPU project.
+*/
+
 #pragma once
 
+// Standard library includes
 #include <array>
 #include <cstdint>
+#include <expected>
 
-namespace cpu
+// Project includes
+#include "cpu/Types.hpp"
+
+namespace cpu::storage
 {
     
-    /// @brief Represents the memory of the CPU.
-    /// @details This class can be extended to include methods for reading and writing memory, as well as managing memory size and layout.
+    enum class MemoryError
+    {
+        AddressOutOfBounds
+    };
+
+
+    /// @brief null
     class Memory
     {
         private:
             
-            std::array<std::uint32_t, 1 << 16> storage_;
+            constexpr static std::size_t capacity_ = 1 << 14;
+
+            std::array<types::word_t, capacity_> storage_;
         
         public:
             
-            /// @brief Constructs a new Memory object with all storage initialized to zero.
-            Memory() : storage_{0} {}
+            /// @brief null
+            Memory() : storage_{} {}
 
-            /// @brief Reads a 32-bit value from the specified memory address.
-            std::uint32_t read(std::uint16_t address) const
+            [[nodiscard]]
+            /// @brief null
+            std::expected<types::word_t, MemoryError>
+            read(types::address_t address) const noexcept
             {
+                if (address >= capacity_)
+                {
+                    return std::unexpected(MemoryError::AddressOutOfBounds);
+                }
+                
                 return storage_[address];
+
             }
 
-            /// @brief Writes a 32-bit value to the specified memory address.
-            void write(std::uint16_t address, std::uint32_t value)
+            [[nodiscard]]
+            /// @brief null
+            std::expected<void, MemoryError>
+            write(types::address_t address, types::word_t value) noexcept
             {
+                if (address >= capacity_)
+                {
+                    return std::unexpected(MemoryError::AddressOutOfBounds);
+                }
+
                 storage_[address] = value;
+                return {};
             }
     
     };

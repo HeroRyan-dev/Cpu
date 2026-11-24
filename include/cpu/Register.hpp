@@ -1,69 +1,75 @@
+/*
+    Cpu\include\cpu\Register.hpp
+    Defines the Register class for the CPU project.
+*/
+
 #pragma once
 
-#include <boost/multiprecision/cpp_int.hpp>
+// Standard library includes
+#include <stdexcept>
+
+// Project includes
 #include "Types.hpp"
-#include <cstdint>
 
-namespace cpu
+namespace cpu::detail
 {
+        /// @brief A class representing a single CPU register.
+        /// @details This class provides methods for reading and writing the register value, as well as managing the register width.
+        class Register
+        {
+            
+            private:
 
+                types::qword_t data_{};
+                types::byte_t width_{};
+                types::qword_t mask_{};
+
+                /// @brief Generates a bitmask for the given width.
+                static types::qword_t generateMask(types::byte_t width)
+                {
+                    if (width == 0 || width > 128)
+                        throw std::invalid_argument("Invalid register width");
+
+                    return (width == 128)
+                        ? ~types::qword_t(0)
+                        : (types::qword_t(1) << width) - 1;
+                }
+                
+            public:
+                
+                /// @brief null
+                Register() = default;
+
+                /// @brief null
+                explicit Register(types::byte_t width)
+                    : width_{width}, mask_{generateMask(width)}
+                {
+                }
+
+                /// @brief null
+                explicit Register(types::qword_t value, types::byte_t width)
+                    : data_{value}, width_{width}, mask_{generateMask(width)}
+                {
+                    data_ &= mask_;
+                }
+
+                /// @brief null
+                types::qword_t read() const
+                {
+                    return data_;
+                }
+
+                /// @brief null
+                void write(types::qword_t value)
+                {
+                    data_ = value & mask_;
+                }
+
+                /// @brief null
+                types::byte_t width() const
+                {
+                    return width_;
+                }
     
-
-    /// @brief A class representing a single CPU register.
-    /// @details This class provides methods for reading and writing the register value, as well as managing the register width.
-    class Register
-    {
-        
-        private:
-
-            using value_t = boost::multiprecision::uint128_t;
-
-            value_t data_{};
-            uint8_t width_{0};
-
-
-            value_t generateMask(unsigned width)
-            {
-                return (width >= 128) ? static_cast<value_t>(-1) : ((static_cast<value_t>(1) << width) - 1);
-            }
-            
-
-        public:
-            
-            // Should only be used when initializing a register without a specific width
-            Register() = default;
-
-            explicit Register(uint8_t width)
-                : data_{0}, width_{width}
-            {
-                // N\A
-            }
-
-
-            explicit Register(value_t value, uint8_t width)
-                : data_{value & generateMask(width)}, width_{width}
-            {
-                // N\A
-            }
-
-            // Infallible read of the register value
-            value_t read() const
-            {
-                return data_;
-            }
-
-            // Infallible write to the register value
-            void write(value_t value)
-            {
-                data_ = value & generateMask(width_);
-            }
-
-            /// @brief Returns the width of the register in bits.
-            uint8_t width() const
-            {
-                return width_;
-            }
-
-
-    };
+        };
 }
