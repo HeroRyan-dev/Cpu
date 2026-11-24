@@ -59,11 +59,9 @@ objdir_Cpu_Debug = obj/Cpu/Debug
 targetdir_Cpu_Debug = bin/Debug
 target_Cpu_Debug = Cpu.exe
 
-build obj/Cpu/Debug/CPU.o: cxx_gcc ../src/CPU.cpp
-  cxxflags = $cxxflags_Cpu_Debug
 build obj/Cpu/Debug/main.o: cxx_gcc ../src/main.cpp
   cxxflags = $cxxflags_Cpu_Debug
-build bin/Debug/Cpu.exe: link_gcc obj/Cpu/Debug/CPU.o obj/Cpu/Debug/main.o
+build bin/Debug/Cpu.exe: link_gcc obj/Cpu/Debug/main.o
   ldflags = $ldflags_Cpu_Debug
 
 # Configuration: Cpu_Release
@@ -75,11 +73,9 @@ objdir_Cpu_Release = obj/Cpu/Release
 targetdir_Cpu_Release = bin/Release
 target_Cpu_Release = Cpu.exe
 
-build obj/Cpu/Release/CPU.o: cxx_gcc ../src/CPU.cpp
-  cxxflags = $cxxflags_Cpu_Release
 build obj/Cpu/Release/main.o: cxx_gcc ../src/main.cpp
   cxxflags = $cxxflags_Cpu_Release
-build bin/Release/Cpu.exe: link_gcc obj/Cpu/Release/CPU.o obj/Cpu/Release/main.o
+build bin/Release/Cpu.exe: link_gcc obj/Cpu/Release/main.o
   ldflags = $ldflags_Cpu_Release
 
 # Configuration: Cpu_Native
@@ -91,11 +87,9 @@ objdir_Cpu_Native = obj/Cpu/Native
 targetdir_Cpu_Native = bin/Native
 target_Cpu_Native = Cpu.exe
 
-build obj/Cpu/Native/CPU.o: cxx_gcc ../src/CPU.cpp
-  cxxflags = $cxxflags_Cpu_Native
 build obj/Cpu/Native/main.o: cxx_gcc ../src/main.cpp
   cxxflags = $cxxflags_Cpu_Native
-build bin/Native/Cpu.exe: link_gcc obj/Cpu/Native/CPU.o obj/Cpu/Native/main.o
+build bin/Native/Cpu.exe: link_gcc obj/Cpu/Native/main.o
   ldflags = $ldflags_Cpu_Native
 
 # Build targets

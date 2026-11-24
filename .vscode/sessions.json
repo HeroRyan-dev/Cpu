@@ -1,0 +1,42 @@
+{
+    "theme": "tribe",
+    "active": "default",
+    "activateOnStartup": true,
+    "keepExistingTerminals": false,
+    "noClear": false,
+    "killProcess": false,
+    "wslSupport": false,
+    "quickRun": true,
+    "hideCommandsInExplorerDescriptions": true,
+    "sessions": {
+        "default": [
+            {
+                "name": "Main",
+                "autoExecuteCommands": true,
+                "icon": "terminal",
+                "color": "terminal.ansiGreen",
+                "commands": [
+                    "& .\\scripts\\modules\\terminal-main.ps1"
+                ]
+            },
+            {
+                "name": "Build",
+                "autoExecuteCommands": true,
+                "icon": "hammer",
+                "color": "terminal.ansiBlue",
+                "commands": [
+                    "Set-Location D:\\ELO\\Cpu"
+                ]
+            },
+            {
+                "name": "Tests",
+                "autoExecuteCommands": true,
+                "icon": "flask-conical",
+                "color": "terminal.ansiYellow",
+                "commands": [
+                    "Set-Location D:\\ELO\\Cpu *> $null"
+                ]
+            }
+        ]
+    }
+}

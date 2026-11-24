@@ -1,110 +1,184 @@
 #pragma once
 
+// Standard library includes
+#include <memory>
 #include <array>
 #include <cstdint>
 #include <string_view>
 #include <stdexcept>
 #include <utility>
+#include <expected>
+#include <iostream>
 
-#include "Register.hpp"
+// Project includes
+#include "cpu/Register.hpp"
+
 
 namespace cpu
 {
-    enum RegisterId : std::uint8_t
+    
+    enum class RegisterError
     {
-        R0, R1, R2, R3, R4, R5, R6, R7,
-        R8, R9, R10, R11, R12, R13, R14, R15,
-
-        RegisterCount
+        NotFound,
+        NullRegister,
+        FileFull,
+        DuplicateName,
+        AlreadyIncluded,
+        InvalidName
     };
-
-    namespace detail
-    {
-        inline constexpr std::array<unsigned, RegisterCount> registerWidths =
-        {
-            32, 32, 32, 32, 32, 32, 32, 32,
-            64, 64, 64, 64, 64, 64, 64, 64
-        };
-
-        constexpr qword makeMask(unsigned width)
-        {
-            if (width == 0 || width > 128)
-                throw std::out_of_range("Invalid register width");
-
-            return width == 128
-                ? ~qword{0}
-                : (qword{1} << width) - 1;
-        }
-
-        template<std::size_t... I>
-        constexpr auto makeRegisters(std::index_sequence<I...>)
-        {
-            return std::array<Register, sizeof...(I)>
-            {
-                Register{makeMask(registerWidths[I])}...
-            };
-        }
-
-        constexpr RegisterId parseRegisterId(std::string_view name)
-        {
-            if (name.size() < 2 || name.size() > 3 || name[0] != 'R')
-                throw std::out_of_range("Invalid register name");
-
-            if (name.size() == 3 && name[1] == '0')
-                throw std::out_of_range("Invalid register name");
-
-            unsigned index = 0;
-
-            for (std::size_t i = 1; i < name.size(); ++i)
-            {
-                const char c = name[i];
-
-                if (c < '0' || c > '9')
-                    throw std::out_of_range("Invalid register name");
-
-                index = index * 10 + (c - '0');
-            }
-
-            if (index >= RegisterCount)
-                throw std::out_of_range("Register does not exist");
-
-            return static_cast<RegisterId>(index);
-        }
-    }
 
     class RegisterFile
     {
-    public:
-        constexpr Register& operator[](RegisterId id)
-        {
-            return registers_[id];
-        }
+        
+        private:
+            // String to Register mapping for quick lookup by name
+            static constexpr std::size_t capacity_ = 128;
+            
+            std::array<std::string, capacity_> names_{};
+            std::array<std::unique_ptr<Register>, capacity_> registers_{};
 
-        constexpr const Register& operator[](RegisterId id) const
-        {
-            return registers_[id];
-        }
 
-        constexpr Register& operator[](std::string_view name)
-        {
-            return registers_[detail::parseRegisterId(name)];
-        }
-
-        constexpr const Register& operator[](std::string_view name) const
-        {
-            return registers_[detail::parseRegisterId(name)];
-        }
-
-        constexpr void reset()
-        {
-            for (auto& reg : registers_)
+            bool nameUsed(std::string_view name) const noexcept
             {
-                reg.reset();
+                for (const auto& n : names_)
+                {
+                    if (n == name)
+                    {
+                        return true;
+                    }
+                }
+                return false;
             }
-        }
 
-    private:
-        std::array<Register, RegisterCount> registers_ =
-            detail::makeRegisters(std::make_index_sequence<RegisterCount>{});
+            bool registerUsed(const Register* register_ptr) const noexcept
+            {
+                for (const auto& r : registers_)
+                {
+                    if (r.get() == register_ptr)
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            int findEmptySlot() const noexcept
+            {
+                for (std::size_t i = 0; i < capacity_; ++i)
+                {
+                    if (names_[i].empty() && !registers_[i])
+                    {
+                        return static_cast<int>(i);
+                    }
+                }
+                return -1; // No empty slot found
+            }
+
+            int findSlotByName(std::string_view name) const noexcept
+            {
+                for (std::size_t i = 0; i < capacity_; ++i)
+                {
+                    if (names_[i] == name)
+                    {
+                        return static_cast<int>(i);
+                    }
+                }
+                
+                return -1; // Not found
+            }
+            
+        public:
+            
+            RegisterFile() = default;
+
+            std::expected<Register*, RegisterError>
+            locate(std::string_view name) noexcept
+            {
+                
+                for (std::size_t i = 0; i < capacity_; ++i)
+                {
+                    
+                    if (names_[i] == name) // Found the register by name
+                    {
+                        
+                        if (!registers_[i]) // Register exists in name mapping but is null
+                        {
+                            return std::unexpected(RegisterError::NullRegister);
+                        }
+                        
+                        return registers_[i].get();
+                    
+                    }
+
+                }
+                
+                return std::unexpected(RegisterError::NotFound);
+            }
+            
+            std::expected<void, RegisterError>
+            include (std::string_view name, std::unique_ptr<Register> register_ptr) noexcept
+            {
+                if (name.empty())
+                {
+                    return std::unexpected(RegisterError::InvalidName); // Assuming InvalidName is not defined in RegisterError
+                }
+
+                if (!register_ptr)
+                {
+                    return std::unexpected(RegisterError::NullRegister);
+                }
+
+                if (nameUsed(name))
+                {
+                    return std::unexpected(RegisterError::DuplicateName);
+                }
+
+                if (registerUsed(register_ptr.get()))
+                {
+                    return std::unexpected(RegisterError::AlreadyIncluded);
+                }
+
+                int emptySlot = findEmptySlot();
+                if (emptySlot == -1)
+                {
+                    return std::unexpected(RegisterError::FileFull);
+                }
+
+                names_[emptySlot] = name;
+                registers_[emptySlot] = std::move(register_ptr);
+
+                return {}; // Success
+            }
+
+            std::expected<void, RegisterError>
+            remove (std::string_view name) noexcept
+            {
+                if (name.empty())
+                {
+                    return std::unexpected(RegisterError::InvalidName);
+                }
+
+                int slot = findSlotByName(name);
+                if (slot != -1)
+                {
+                    names_[slot].clear();
+                    registers_[slot].reset();
+                    return {}; // Success
+                }
+
+                return std::unexpected(RegisterError::NotFound);
+            }
+            
+            void clear() noexcept
+            {
+                for (int i = 0; i < capacity_; ++i)
+                {
+                    names_[i].clear();
+                    registers_[i].reset();
+                }
+
+            }
+
     };
+
 }

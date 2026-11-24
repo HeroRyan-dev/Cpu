@@ -1,48 +1,69 @@
 #pragma once
 
+#include <boost/multiprecision/cpp_int.hpp>
 #include "Types.hpp"
+#include <cstdint>
 
 namespace cpu
 {
+
+    
+
+    /// @brief A class representing a single CPU register.
+    /// @details This class provides methods for reading and writing the register value, as well as managing the register width.
     class Register
     {
-    public:
-        constexpr Register() = default;
+        
+        private:
 
-        constexpr explicit Register(qword mask)
-            : mask_(mask)
-        {}
+            using value_t = boost::multiprecision::uint128_t;
 
-        constexpr Register& operator=(qword value)
-        {
-            value_ = value & mask_;
-            return *this;
-        }
+            value_t data_{};
+            uint8_t width_{0};
 
-        constexpr Register& operator=(const Register& other)
-        {
-            return *this = static_cast<qword>(other);
-        }
 
-        [[nodiscard]]
-        constexpr operator qword() const
-        {
-            return value_;
-        }
+            value_t generateMask(unsigned width)
+            {
+                return (width >= 128) ? static_cast<value_t>(-1) : ((static_cast<value_t>(1) << width) - 1);
+            }
+            
 
-        [[nodiscard]]
-        constexpr qword getMask() const
-        {
-            return mask_;
-        }
+        public:
+            
+            // Should only be used when initializing a register without a specific width
+            Register() = default;
 
-        constexpr void reset()
-        {
-            value_ = 0;
-        }
+            explicit Register(uint8_t width)
+                : data_{0}, width_{width}
+            {
+                // N\A
+            }
 
-    private:
-        qword mask_ = ~qword{0};
-        qword value_{};
+
+            explicit Register(value_t value, uint8_t width)
+                : data_{value & generateMask(width)}, width_{width}
+            {
+                // N\A
+            }
+
+            // Infallible read of the register value
+            value_t read() const
+            {
+                return data_;
+            }
+
+            // Infallible write to the register value
+            void write(value_t value)
+            {
+                data_ = value & generateMask(width_);
+            }
+
+            /// @brief Returns the width of the register in bits.
+            uint8_t width() const
+            {
+                return width_;
+            }
+
+
     };
 }
