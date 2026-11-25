@@ -36,7 +36,7 @@ namespace cpu::detail
                 }
                 
             public:
-                
+
                 /// @brief null
                 Register() = default;
 
@@ -70,6 +70,5 @@ namespace cpu::detail
                 {
                     return width_;
                 }
-    
         };
 }

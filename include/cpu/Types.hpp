@@ -8,12 +8,8 @@
 #include <cstdint>
 #include <boost/multiprecision/cpp_int.hpp>
 
-namespace cpu
+namespace cpu::types
 {
-
-    namespace types
-    {
-
         using byte_t         = std::uint8_t;
         using word_t         = std::uint32_t;
         using dword_t        = std::uint64_t;
@@ -25,6 +21,4 @@ namespace cpu
         using register_id_t  = std::uint8_t;
 
         using instruction_t  = std::uint32_t;
-    
-    }
 }

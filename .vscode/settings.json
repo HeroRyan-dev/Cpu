@@ -1,0 +1,8 @@
+{
+"github.copilot.enable": {
+  "*": true,
+  "plaintext": false,  // ← language exclusions
+  "markdown": false
+    },
+    "C_Cpp.suggestSnippets": false
+}

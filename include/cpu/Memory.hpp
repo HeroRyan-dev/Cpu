@@ -13,13 +13,16 @@
 // Project includes
 #include "cpu/Types.hpp"
 
-namespace cpu::storage
+namespace cpu
 {
-    
-    enum class MemoryError
+
+    namespace errors
     {
-        AddressOutOfBounds
-    };
+        enum class MemoryError
+        {
+            AddressOutOfBounds
+        };
+    }
 
 
     /// @brief null
@@ -38,12 +41,12 @@ namespace cpu::storage
 
             [[nodiscard]]
             /// @brief null
-            std::expected<types::word_t, MemoryError>
+            std::expected<types::word_t, errors::MemoryError>
             read(types::address_t address) const noexcept
             {
                 if (address >= capacity_)
                 {
-                    return std::unexpected(MemoryError::AddressOutOfBounds);
+                    return std::unexpected(errors::MemoryError::AddressOutOfBounds);
                 }
                 
                 return storage_[address];
@@ -52,12 +55,12 @@ namespace cpu::storage
 
             [[nodiscard]]
             /// @brief null
-            std::expected<void, MemoryError>
+            std::expected<void, errors::MemoryError>
             write(types::address_t address, types::word_t value) noexcept
             {
                 if (address >= capacity_)
                 {
-                    return std::unexpected(MemoryError::AddressOutOfBounds);
+                    return std::unexpected(errors::MemoryError::AddressOutOfBounds);
                 }
 
                 storage_[address] = value;

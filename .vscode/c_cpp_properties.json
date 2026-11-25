@@ -2,7 +2,7 @@
     "configurations": [
         {
             "name": "MSYS2 UCRT64",
-            "compilerPath": "C:/msys64/ucrt64/bin/g++.exe",
+            "compilerPath": "C:/msys64/ucrt64/bin/gcc.exe",
             "compilerArgs": [
                 "-freflection"
             ],

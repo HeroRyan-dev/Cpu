@@ -19,199 +19,215 @@
 #include "cpu/Register.hpp"
 #include "cpu/Types.hpp"
 
-namespace cpu::storage
+namespace cpu
 {
-    enum class RegisterError
+    namespace errors
     {
-        NotFound,
-        NullRegister,
-        FileFull,
-        DuplicateName,
-        AlreadyIncluded,
-        InvalidName
-    };
+        enum class RegisterError
+        {
+            NotFound,
+            NullRegister,
+            FileFull,
+            DuplicateName,
+            AlreadyIncluded,
+            InvalidName
+        };
+    }
 
-
-    /// @brief null
-    /// @details null
-    class RegisterFile
+    namespace storage
     {
-        
-        private:
+        /// @brief null
+        class RegisterFile
+        {
             
-            static constexpr std::size_t capacity_ = 128;
-            
-            ///
-            struct Entry
-            {
-                std::string name_;
-                std::unique_ptr<detail::Register> register_;
-            };
-
-            std::array<Entry, capacity_> entries_{};
-
-            std::size_t firstEmptyEntry() const noexcept
-            {
-                for (std::size_t i = 0; i < capacity_; ++i)
+            private:
+                static constexpr std::size_t capacity_ = 128;
+                
+                ///
+                struct Entry
                 {
-                    if (entries_[i].name_.empty())
+                    std::string name_;
+                    std::unique_ptr<detail::Register> register_;
+                };
+
+                std::array<Entry, capacity_> entries_{};
+
+                std::size_t firstEmptyEntry() const noexcept
+                {
+                    for (std::size_t i = 0; i < capacity_; ++i)
                     {
-                        return i;
+                        if (entries_[i].name_.empty())
+                        {
+                            return i;
+                        }
+                    }
+            
+                    return capacity_; // No empty slot found
+
+                }
+                
+                std::size_t findEntryByName(std::string_view name) const noexcept
+                {
+                    for (std::size_t i = 0; i < capacity_; ++i)
+                    {
+                        if (entries_[i].name_ == name)
+                            return i;
+                    }
+
+                    return capacity_; // Not found
+                    
+                }
+
+            public:
+                
+                RegisterFile() = default;
+
+                [[nodiscard]]
+                std::expected<detail::Register*, errors::RegisterError>
+                locate(std::string_view name) noexcept
+                {
+                    
+                    auto entryIndex = findEntryByName(name);
+                    
+                    if (entryIndex == capacity_)
+                    {
+                        return std::unexpected(errors::RegisterError::NotFound);
+                    }
+
+                    return entries_[entryIndex].register_.get();
+
+                }
+                
+                [[nodiscard]]
+                std::expected<detail::Register*, errors::RegisterError>
+                locate(types::register_id_t id) noexcept
+                {
+                    if (id >= capacity_)
+                    {
+                        return std::unexpected(errors::RegisterError::NotFound);
+                    }
+
+                    if (!entries_[id].register_)
+                    {
+                        return std::unexpected(errors::RegisterError::NullRegister);
+                    }
+
+                    return entries_[id].register_.get();
+
+
+                }
+
+                [[nodiscard]]
+                std::expected<void, errors::RegisterError>
+                include(
+                    std::string_view name,
+                    std::unique_ptr<detail::Register>&& register_ptr)
+                {
+                    if (name.empty())
+                    {
+                        return std::unexpected(errors::RegisterError::InvalidName);
+                    }
+
+                    if (!register_ptr)
+                    {
+                        return std::unexpected(errors::RegisterError::InvalidName);
+                    }
+
+                    if (findEntryByName(name) != capacity_)
+                    {
+                        return std::unexpected(errors::RegisterError::DuplicateName);
+                    }
+
+                    auto entry = firstEmptyEntry();
+
+                    if (entry == capacity_)
+                    {
+                        return std::unexpected(errors::RegisterError::FileFull);
+                    }
+
+                    std::string owned_name{name};
+
+                    entries_[entry].name_     = std::move(owned_name);
+                    entries_[entry].register_ = std::move(register_ptr);
+
+                    return {}; // Success
+                }
+
+                [[nodiscard]]
+                std::expected<void, errors::RegisterError>
+                include(
+                    std::string_view name,
+                    types::byte_t width)
+                {
+
+                    auto reg = std::make_unique<detail::Register>(width);
+                    return include(name, std::move(reg));
+                }
+
+                [[nodiscard]]
+                std::expected<void, errors::RegisterError>
+                remove(std::string_view name) noexcept
+                {
+                    if (name.empty())
+                    {
+                        return std::unexpected(errors::RegisterError::InvalidName);
+                    }
+
+                    const auto entry = findEntryByName(name);
+                    
+                    if (entry == capacity_)
+                    {
+                        return std::unexpected(errors::RegisterError::NotFound);
+                    }
+
+                    entries_[entry].name_.clear();
+                    entries_[entry].register_.reset();
+                    
+                    return {}; // Success
+                }
+                
+                void clear() noexcept
+                {
+                    for (auto& entry : entries_)
+                    {
+                        entry.name_.clear();
+                        entry.register_.reset();
                     }
                 }
-        
-                return capacity_; // No empty slot found
 
-            }
-            
-            std::size_t findEntryByName(std::string_view name) const noexcept
-            {
-                for (std::size_t i = 0; i < capacity_; ++i)
+                [[nodiscard]]
+                bool contains(std::string_view name) const noexcept
                 {
-                    if (entries_[i].name_ == name)
-                        return i;
+                    return findEntryByName(name) != capacity_;
                 }
 
-                return capacity_; // Not found
-                
-            }
-
-        public:
-            
-            RegisterFile() = default;
-
-            [[nodiscard]]
-            std::expected<detail::Register*, RegisterError>
-            locate(std::string_view name) noexcept
-            {
-                
-                auto entryIndex = findEntryByName(name);
-                
-                if (entryIndex == capacity_)
+                [[nodiscard]]
+                std::expected<detail::Register*, errors::RegisterError>
+                rename(std::string_view old_name, std::string_view new_name) noexcept
                 {
-                    return std::unexpected(RegisterError::NotFound);
+                    if (old_name.empty() || new_name.empty())
+                    {
+                        return std::unexpected(errors::RegisterError::InvalidName);
+                    }
+
+                    const auto entry = findEntryByName(old_name);
+
+                    if (entry == capacity_)
+                    {
+                        return std::unexpected(errors::RegisterError::NotFound);
+                    }
+
+                    if (findEntryByName(new_name) != capacity_)
+                    {
+                        return std::unexpected(errors::RegisterError::DuplicateName);
+                    }
+
+                    entries_[entry].name_ = std::string{new_name};
+
+                    return {}; // Success
                 }
-
-                return entries_[entryIndex].register_.get();
-
-            }
-            
-            [[nodiscard]]
-            std::expected<detail::Register*, RegisterError>
-            locate(types::register_id_t id) noexcept
-            {
-                if (id >= capacity_)
-                {
-                    return std::unexpected(RegisterError::NotFound);
-                }
-
-                if (!entries_[id].register_)
-                {
-                    return std::unexpected(RegisterError::NullRegister);
-                }
-
-                return entries_[id].register_.get();
-
-
-            }
-
-            [[nodiscard]]
-            std::expected<void, RegisterError>
-            include(
-                std::string_view name,
-                std::unique_ptr<detail::Register>&& register_ptr)
-            {
-                if (name.empty())
-                {
-                    return std::unexpected(RegisterError::InvalidName);
-                }
-
-                if (!register_ptr)
-                {
-                    return std::unexpected(RegisterError::InvalidName);
-                }
-
-                if (findEntryByName(name) != capacity_)
-                {
-                    return std::unexpected(RegisterError::DuplicateName);
-                }
-
-                auto entry = firstEmptyEntry();
-
-                if (entry == capacity_)
-                {
-                    return std::unexpected(RegisterError::FileFull);
-                }
-
-                std::string owned_name{name};
-
-                entries_[entry].name_     = std::move(owned_name);
-                entries_[entry].register_ = std::move(register_ptr);
-
-                return {}; // Success
-            }
-
-            [[nodiscard]]
-            std::expected<void, RegisterError>
-            remove(std::string_view name) noexcept
-            {
-                if (name.empty())
-                {
-                    return std::unexpected(RegisterError::InvalidName);
-                }
-
-                const auto entry = findEntryByName(name);
-                
-                if (entry == capacity_)
-                {
-                    return std::unexpected(RegisterError::NotFound);
-                }
-
-                entries_[entry].name_.clear();
-                entries_[entry].register_.reset();
-                
-                return {}; // Success
-            }
-            
-            void clear() noexcept
-            {
-                for (auto& entry : entries_)
-                {
-                    entry.name_.clear();
-                    entry.register_.reset();
-                }
-            }
-
-            [[nodiscard]]
-            bool contains(std::string_view name) const noexcept
-            {
-                return findEntryByName(name) != capacity_;
-            }
-
-            [[nodiscard]]
-            std::expected<detail::Register*, RegisterError>
-            rename(std::string_view old_name, std::string_view new_name) noexcept
-            {
-                if (old_name.empty() || new_name.empty())
-                {
-                    return std::unexpected(RegisterError::InvalidName);
-                }
-
-                const auto entry = findEntryByName(old_name);
-
-                if (entry == capacity_)
-                {
-                    return std::unexpected(RegisterError::NotFound);
-                }
-
-                if (findEntryByName(new_name) != capacity_)
-                {
-                    return std::unexpected(RegisterError::DuplicateName);
-                }
-
-                entries_[entry].name_ = std::string{new_name};
-
-                return {}; // Success
-            }
-    };
+        };
+    }
+    
+    
 }

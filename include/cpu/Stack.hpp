@@ -4,82 +4,160 @@
 #include <cstdint>
 #include "cpu/Register.hpp"
 #include <expected>
+
+
 namespace cpu
 {
-
-    enum class StackError
+    namespace errors
     {
-        Overflow,
-        Underflow,
-        InvalidStackPointer
-    };
+        enum class StackError
+        {
+            
+            Overflow,
+            Underflow,
+            InvalidStackPointer
+        
+        };
+    }
 
-
-    class Stack
+    namespace storage
     {
-        private:
-            
-            static constexpr std::size_t capacity_ = 1 << 12; // 16KB of stack storage
-
-            Register& stack_ptr_;
-
-            std::array<std::uint32_t, capacity_> storage_;
-
-            static constexpr unsigned required_width_ = std::bit_width(capacity_);
-
-        public:
-
-            explicit Stack(Register& stack_ptr)
-                : stack_ptr_(stack_ptr)
-            {
-                if (stack_ptr_.width() < required_width_)
-                {
-                    throw std::runtime_error("Stack pointer width is insufficient for stack capacity");
-                }
-            }
-
-            [[nodiscard]]
-            std::expected<void, StackError> push(std::uint32_t value) noexcept
-            {
-                auto sp = stack_ptr_.read();
+        /// @brief null
+        class Stack
+        {
+            private:
                 
-                if (sp >= capacity_)
+            /// @brief null
+                static constexpr std::size_t capacity_ = 1 << 12;
+
+                detail::Register& stack_ptr_;
+
+                std::array<types::word_t, capacity_> storage_;
+
+                static constexpr unsigned required_width_ = std::bit_width(capacity_);
+
+                /// @brief  null
+                [[nodiscard]]
+                std::expected<std::size_t, errors::StackError>
+                getStackPointer() const
                 {
-                    return std::unexpected(StackError::Overflow);
+                    const auto stack_ptr = stack_ptr_.read();
+
+                    if (stack_ptr > capacity_)
+                    {
+                        return std::unexpected(errors::StackError::InvalidStackPointer);
+                    }
+
+                    return stack_ptr.convert_to<std::size_t>();
                 }
 
-                storage_[sp.convert_to<std::size_t>()] = value;
-                
-                stack_ptr_.write(sp + 1);
-                
-                return {};
-            }
+            public:
 
-
-            [[nodiscard]]
-            std::expected<std::uint32_t, StackError> pop() noexcept
-            {
-                auto sp = stack_ptr_.read();
-                
-                if (sp == 0)
+                /// @brief null
+                explicit Stack(detail::Register& stack_ptr)
+                    : stack_ptr_(stack_ptr)
                 {
-                    return std::unexpected(StackError::Underflow);
-                }
-                
-                if (sp > capacity_)
-                {
-                    return std::unexpected(StackError::InvalidStackPointer);
+                    if (stack_ptr_.width() < required_width_)
+                    {
+                        throw std::runtime_error("Stack pointer width is insufficient for stack capacity");
+                    }
                 }
 
-                sp--;
+                /// @brief null
+                [[nodiscard]]
+                std::expected<void, errors::StackError>
+                push(types::word_t value) noexcept
+                {
+                    auto stack_ptr = getStackPointer();
 
-                const auto value = storage_[sp.convert_to<std::size_t>()];
-                
-                stack_ptr_.write(sp);
-                
-                return value;
-            
-            }
-    };
+                    if (!stack_ptr)
+                    {
+                        return std::unexpected(errors::StackError::InvalidStackPointer);
+                    }
+                    
+                    if (*stack_ptr == capacity_)
+                    {
+                        return std::unexpected(errors::StackError::Overflow);
+                    }
 
+                    storage_[*stack_ptr] = value;
+                    stack_ptr_.write(*stack_ptr + 1);
+
+                    return {};
+
+                }
+
+                /// @brief null
+                [[nodiscard]]
+                std::expected<types::word_t, errors::StackError>
+                pop() noexcept
+                {
+                    auto stack_ptr = getStackPointer();
+                    
+                    if (!stack_ptr)
+                    {
+                        return std::unexpected(errors::StackError::InvalidStackPointer);
+                    }
+
+                    if (*stack_ptr == 0)
+                    {
+                        return std::unexpected(errors::StackError::Underflow);
+                    }
+                    
+                    --(*stack_ptr);
+
+                    const auto value = storage_[*stack_ptr];
+                    
+                    stack_ptr_.write(*stack_ptr);
+                    
+                    return value;
+                    
+                }
+                
+                /// @brief null
+                [[nodiscard]]
+                std::expected<types::word_t, errors::StackError>
+                peek() const
+                {
+                    auto stack_ptr = getStackPointer();
+                    
+                    if (!stack_ptr)
+                    {
+                        return std::unexpected(errors::StackError::InvalidStackPointer);
+                    }
+
+                    if (*stack_ptr == 0)
+                    {
+                        return std::unexpected(errors::StackError::Underflow);
+                    }
+
+                    const auto value = storage_[*stack_ptr - 1];
+
+                    return value;
+                }
+
+                /// @brief null
+                [[nodiscard]]
+                static constexpr std::size_t max_capacity() noexcept
+                {
+                    return capacity_;
+                }
+
+                /// @brief null
+                [[nodiscard]]
+                bool empty() const noexcept
+                {
+                    auto stack_ptr = getStackPointer();
+                    return stack_ptr && *stack_ptr == 0;
+                }
+
+                /// @brief null
+                [[nodiscard]]
+                bool full() const noexcept
+                {
+                    auto stack_ptr = getStackPointer();
+                    return stack_ptr && *stack_ptr == capacity_;
+                }
+        };
+    }
 }
