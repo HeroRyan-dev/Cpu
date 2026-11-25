@@ -11,7 +11,7 @@
 // Project includes
 #include "Types.hpp"
 
-namespace cpu::detail
+namespace cpu::storage::detail
 {
         /// @brief A class representing a single CPU register.
         /// @details This class provides methods for reading and writing the register value, as well as managing the register width.
