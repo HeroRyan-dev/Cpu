@@ -25,12 +25,13 @@ namespace cpu
     {
         enum class RegisterError
         {
-            NotFound,
-            NullRegister,
-            FileFull,
-            DuplicateName,
-            AlreadyIncluded,
-            InvalidName
+            NAME_NOT_FOUND,
+            ID_NOT_FOUND,
+            NULL_REGISTER,
+            FILE_FULL,
+            DUPLICATE_NAME,
+            ALREADY_INCLUDED,
+            INVALID
         };
     }
 
@@ -91,7 +92,7 @@ namespace cpu
                     
                     if (entryIndex == capacity_)
                     {
-                        return std::unexpected(errors::RegisterError::NotFound);
+                        return std::unexpected(errors::RegisterError::NAME_NOT_FOUND);
                     }
 
                     return entries_[entryIndex].register_.get();
@@ -104,12 +105,12 @@ namespace cpu
                 {
                     if (id >= capacity_)
                     {
-                        return std::unexpected(errors::RegisterError::NotFound);
+                        return std::unexpected(errors::RegisterError::ID_NOT_FOUND);
                     }
 
                     if (!entries_[id].register_)
                     {
-                        return std::unexpected(errors::RegisterError::NullRegister);
+                        return std::unexpected(errors::RegisterError::NULL_REGISTER);
                     }
 
                     return entries_[id].register_.get();
@@ -125,24 +126,24 @@ namespace cpu
                 {
                     if (name.empty())
                     {
-                        return std::unexpected(errors::RegisterError::InvalidName);
+                        return std::unexpected(errors::RegisterError::INVALID);
                     }
 
                     if (!register_ptr)
                     {
-                        return std::unexpected(errors::RegisterError::InvalidName);
+                        return std::unexpected(errors::RegisterError::INVALID);
                     }
 
                     if (findEntryByName(name) != capacity_)
                     {
-                        return std::unexpected(errors::RegisterError::DuplicateName);
+                        return std::unexpected(errors::RegisterError::DUPLICATE_NAME);
                     }
 
                     auto entry = firstEmptyEntry();
 
                     if (entry == capacity_)
                     {
-                        return std::unexpected(errors::RegisterError::FileFull);
+                        return std::unexpected(errors::RegisterError::FILE_FULL);
                     }
 
                     std::string owned_name{name};
@@ -170,14 +171,14 @@ namespace cpu
                 {
                     if (name.empty())
                     {
-                        return std::unexpected(errors::RegisterError::InvalidName);
+                        return std::unexpected(errors::RegisterError::INVALID);
                     }
 
                     const auto entry = findEntryByName(name);
                     
                     if (entry == capacity_)
                     {
-                        return std::unexpected(errors::RegisterError::NotFound);
+                        return std::unexpected(errors::RegisterError::NAME_NOT_FOUND);
                     }
 
                     entries_[entry].name_.clear();
@@ -207,19 +208,19 @@ namespace cpu
                 {
                     if (old_name.empty() || new_name.empty())
                     {
-                        return std::unexpected(errors::RegisterError::InvalidName);
+                        return std::unexpected(errors::RegisterError::INVALID);
                     }
 
                     const auto entry = findEntryByName(old_name);
 
                     if (entry == capacity_)
                     {
-                        return std::unexpected(errors::RegisterError::NotFound);
+                        return std::unexpected(errors::RegisterError::NAME_NOT_FOUND);
                     }
 
                     if (findEntryByName(new_name) != capacity_)
                     {
-                        return std::unexpected(errors::RegisterError::DuplicateName);
+                        return std::unexpected(errors::RegisterError::DUPLICATE_NAME);
                     }
 
                     entries_[entry].name_ = std::string{new_name};

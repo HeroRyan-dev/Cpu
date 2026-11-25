@@ -12,37 +12,71 @@
 
 namespace cpu
 {
+
+    auto error_color = fmt::rgb(208, 19, 19);
+    auto str_color = fmt::rgb(126, 194, 99);
+    auto object_color = fmt::rgb(73, 118, 191);
+    auto text_color = fmt::rgb(214, 214, 214);
+    auto type_color = fmt::rgb(100, 178, 215);
+    auto number_color = fmt::rgb(211, 156, 101);
+
+    std::string stringWrap(std::string_view str)
+    {
+        return fmt::format("\"{}\"", str);
+    }
+
+    std::string typeWrap(std::string_view str)
+    {
+        return fmt::format("@{}", str);
+    }
+
+    std::string idWrap(std::string_view str)
+    {
+        return fmt::format("#{}", str);
+    }
+
     void printError(
         errors::RegisterError error,
-        std::string_view object = "[annoymous]")
+        std::string_view input = "anonymous")
     {
         switch (error)
         {
-            case errors::RegisterError::NotFound:
+            case errors::RegisterError::NAME_NOT_FOUND:
             {
                 fmt::println(
                     "{} {} {} {}",
-                    fmt::styled("[ERROR]",                     fg(fmt::rgb(208, 19, 19))),
-                    fmt::styled("<Register>",                  fg(fmt::rgb(64, 12, 48))),
-                    fmt::styled(fmt::format("\"{}\"", object), fg(fmt::rgb(20, 112, 20))),
-                    fmt::styled("was not found.",              fg(fmt::rgb(255, 255, 255))));
+                    fmt::styled("ERROR",           fg(error_color)),
+                    fmt::styled("@Register",        fg(type_color)),
+                    fmt::styled(stringWrap(input), fg(str_color)),
+                    fmt::styled("was not found.",  fg(text_color))
+                );
+                
                 break;
             }
 
-            case errors::RegisterError::Invalid:
+            case errors::RegisterError::ID_NOT_FOUND:
             {
                 fmt::println(
                     "{} {} {} {}",
-                    fmt::styled("[ERROR]",                     fg(fmt::rgb(208, 19, 19))),
-                    fmt::styled("<Register>",                  fg(fmt::rgb(64, 12, 48))),
-                    fmt::styled(fmt::format("\"{}\"", object), fg(fmt::rgb(0, 255, 0))),
-                    fmt::styled("is invalid.",                 fg(fmt::rgb(255, 255, 255))));
+                    fmt::styled("ERROR",                     fg(error_color)),
+                    fmt::styled(typeWrap("Register"),                  fg(type_color)),
+                    fmt::styled(idWrap(input),             fg(str_color)),
+                    fmt::styled("does not exist.",             fg(text_color)));
+                break;
+            }
+            case errors::RegisterError::NULL_REGISTER:
+            {
+                fmt::println(
+                    "[{}] {} {} {}",
+                    fmt::styled("ERROR", fg(error_color)),
+                    fmt::styled(typeWrap("Register"), fg(type_color)),
+                    fmt::styled(idWrap(input), fg(number_color)),
+                    fmt::styled("does not exist.", fg(text_color)));
                 break;
             }
 
             default:
-                fmt::println(fg(fmt::color::red), "Unknown error");
-                break;
+                std::cerr << fmt::format("{} {}", fmt::styled("[ERROR]", fg(error_color)), fmt::styled("Unknown error", fg(text_color))) << std::endl;
         }
     }
 

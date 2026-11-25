@@ -45,7 +45,24 @@ void testRegisterFile(storage::RegisterFile& registers)
     {
         printError(locate_R1.error(), register_name);
     }
-    
+
+    types::register_id_t id = 66;
+    auto locate_R66 = registers.locate(id);
+    if (locate_R66)
+    {
+        auto *R66 = *locate_R66;
+
+        fmt::println("[{}] initial value: {}", std::to_string(id), R66->read().str());
+       
+        R66->write(100);
+
+        fmt::println("{} new value: {}", std::to_string(id), R66->read().str());
+    }
+    else
+    {
+        printError(locate_R66.error(), std::to_string(id));
+    }
+
     // Test duplicate names.
     auto duplicate = registers.include("R1", 32);
     if (!duplicate)
