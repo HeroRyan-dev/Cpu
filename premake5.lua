@@ -1,3 +1,23 @@
+-- =======================================
+--             Dependencies
+-- =======================================
+
+function configureDependencies()
+    includedirs {
+        "C:/msys64/ucrt64/include"
+    }
+
+    libdirs {
+        "C:/msys64/ucrt64/lib"
+    }
+
+    links {
+        "fmt"
+    }
+end
+
+
+
 workspace "Cpu"
     architecture "x86_64"
     
@@ -44,6 +64,8 @@ workspace "Cpu"
 project "Cpu"
     kind "ConsoleApp"
     language "C++"
+
+    configureDependencies()
 
     files {
         "include/**.hpp",
@@ -111,6 +133,8 @@ project "Cpu"
 project "Benchmarks"
     kind "ConsoleApp"
     language "C++"
+
+    configureDependencies()
 
     files {
         "benchmarks/**.cpp",
@@ -182,6 +206,8 @@ project "Benchmarks"
 project "Tests"
     kind "ConsoleApp"
     language "C++"
+        
+    configureDependencies()
 
     files {
         "tests/**.cpp",

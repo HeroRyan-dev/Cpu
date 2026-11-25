@@ -52,10 +52,10 @@ rule custom
 
 # Configuration: Benchmarks_Debug
 
-cflags_Benchmarks_Debug = -m64 -O0 -g -Wall -Wextra -D"DEBUG" -I../include -Wall -Wextra -Wpedantic -Wconversion -Wcast-align -Wunused -Wshadow -freflection -O0
-cxxflags_Benchmarks_Debug = -m64 -O0 -g -Wall -Wextra -std=c++26 -D"DEBUG" -I../include -Wall -Wextra -Wpedantic -Wconversion -Wcast-align -Wunused -Wshadow -freflection -O0
-ldflags_Benchmarks_Debug = -m64 -L/usr/lib64
-links_Benchmarks_Debug = -lbenchmark -lbenchmark_main
+cflags_Benchmarks_Debug = -m64 -O0 -g -Wall -Wextra -D"DEBUG" -IC:/msys64/ucrt64/include -I../include -Wall -Wextra -Wpedantic -Wconversion -Wcast-align -Wunused -Wshadow -freflection -O0
+cxxflags_Benchmarks_Debug = -m64 -O0 -g -Wall -Wextra -std=c++26 -D"DEBUG" -IC:/msys64/ucrt64/include -I../include -Wall -Wextra -Wpedantic -Wconversion -Wcast-align -Wunused -Wshadow -freflection -O0
+ldflags_Benchmarks_Debug = -m64 -LC:/msys64/ucrt64/lib -L/usr/lib64
+links_Benchmarks_Debug = -lfmt -lbenchmark -lbenchmark_main
 objdir_Benchmarks_Debug = obj/Benchmarks/Debug
 targetdir_Benchmarks_Debug = bin/Debug
 target_Benchmarks_Debug = Benchmarks.exe
@@ -68,10 +68,10 @@ build bin/Debug/Benchmarks.exe: link_gcc obj/Benchmarks/Debug/RegisterBenchmark.
 
 # Configuration: Benchmarks_Release
 
-cflags_Benchmarks_Release = -m64 -O3 -g -Wall -Wextra -D"NDEBUG" -I../include -Wall -Wextra -Wpedantic -Wconversion -Wcast-align -Wunused -Wshadow -freflection -O3 -march=x86-64 -flto -mtune=native -fomit-frame-pointer
-cxxflags_Benchmarks_Release = -m64 -O3 -g -Wall -Wextra -std=c++26 -D"NDEBUG" -I../include -Wall -Wextra -Wpedantic -Wconversion -Wcast-align -Wunused -Wshadow -freflection -O3 -march=x86-64 -flto -mtune=native -fomit-frame-pointer
-ldflags_Benchmarks_Release = -m64 -flto -L/usr/lib64
-links_Benchmarks_Release = -lbenchmark -lbenchmark_main
+cflags_Benchmarks_Release = -m64 -O3 -g -Wall -Wextra -D"NDEBUG" -IC:/msys64/ucrt64/include -I../include -Wall -Wextra -Wpedantic -Wconversion -Wcast-align -Wunused -Wshadow -freflection -O3 -march=x86-64 -flto -mtune=native -fomit-frame-pointer
+cxxflags_Benchmarks_Release = -m64 -O3 -g -Wall -Wextra -std=c++26 -D"NDEBUG" -IC:/msys64/ucrt64/include -I../include -Wall -Wextra -Wpedantic -Wconversion -Wcast-align -Wunused -Wshadow -freflection -O3 -march=x86-64 -flto -mtune=native -fomit-frame-pointer
+ldflags_Benchmarks_Release = -m64 -flto -LC:/msys64/ucrt64/lib -L/usr/lib64
+links_Benchmarks_Release = -lfmt -lbenchmark -lbenchmark_main
 objdir_Benchmarks_Release = obj/Benchmarks/Release
 targetdir_Benchmarks_Release = bin/Release
 target_Benchmarks_Release = Benchmarks.exe
@@ -84,10 +84,10 @@ build bin/Release/Benchmarks.exe: link_gcc obj/Benchmarks/Release/RegisterBenchm
 
 # Configuration: Benchmarks_Native
 
-cflags_Benchmarks_Native = -m64 -O3 -g -Wall -Wextra -D"NDEBUG" -I../include -Wall -Wextra -Wpedantic -Wconversion -Wcast-align -Wunused -Wshadow -freflection -Ofast -march=native -mtune=native -fomit-frame-pointer -flto
-cxxflags_Benchmarks_Native = -m64 -O3 -g -Wall -Wextra -std=c++26 -D"NDEBUG" -I../include -Wall -Wextra -Wpedantic -Wconversion -Wcast-align -Wunused -Wshadow -freflection -Ofast -march=native -mtune=native -fomit-frame-pointer -flto
-ldflags_Benchmarks_Native = -m64 -L/usr/lib64
-links_Benchmarks_Native = -lbenchmark -lbenchmark_main
+cflags_Benchmarks_Native = -m64 -O3 -g -Wall -Wextra -D"NDEBUG" -IC:/msys64/ucrt64/include -I../include -Wall -Wextra -Wpedantic -Wconversion -Wcast-align -Wunused -Wshadow -freflection -Ofast -march=native -mtune=native -fomit-frame-pointer -flto
+cxxflags_Benchmarks_Native = -m64 -O3 -g -Wall -Wextra -std=c++26 -D"NDEBUG" -IC:/msys64/ucrt64/include -I../include -Wall -Wextra -Wpedantic -Wconversion -Wcast-align -Wunused -Wshadow -freflection -Ofast -march=native -mtune=native -fomit-frame-pointer -flto
+ldflags_Benchmarks_Native = -m64 -LC:/msys64/ucrt64/lib -L/usr/lib64
+links_Benchmarks_Native = -lfmt -lbenchmark -lbenchmark_main
 objdir_Benchmarks_Native = obj/Benchmarks/Native
 targetdir_Benchmarks_Native = bin/Native
 target_Benchmarks_Native = Benchmarks.exe

@@ -1,10 +1,13 @@
 #include <iostream>
 #include <memory>
-
+#include <fmt/format.h>
+#include <fmt/color.h>
+#include <fmt/core.h>
 #include "cpu/Register.hpp"
 #include "cpu/RegisterFile.hpp"
 #include "cpu/Stack.hpp"
 #include "cpu/Memory.hpp"
+#include "cpu/Print.hpp"
 
 using namespace cpu;
 
@@ -14,45 +17,52 @@ using namespace cpu;
 
 void testRegisterFile(storage::RegisterFile& registers)
 {
-    std::cout << "\n========== REGISTER FILE ==========\n";
+    fmt::print("\n========== REGISTER FILE ==========\n");
 
     // Include registers.
     auto add1 = registers.include("R1", 32);
-
     auto add2 = registers.include("R2", 32);
-
     auto add3 = registers.include("SP", 14);
 
-    std::cout << "Added R1: " << static_cast<bool>(add1) << '\n';
-    std::cout << "Added R2: " << static_cast<bool>(add2) << '\n';
-    std::cout << "Added SP: " << static_cast<bool>(add3) << '\n';
+    fmt::println("Added @Register R1: {}", static_cast<bool>(add1));
+    fmt::println("Added @Register R2: {}", static_cast<bool>(add2));
+    fmt::println("Added @Register SP: {}", static_cast<bool>(add3));
 
     // Locate and modify R1.
-    auto R1 = registers.locate("R1");
-
-    if (R1)
+    std::string register_name = "Rz";
+    auto locate_R1 = registers.locate(register_name);
+    if (locate_R1)
     {
-        (*R1)->write(100);
-        std::cout << "R1 value: " << (*R1)->read() << '\n';
-    }
-    else
+        auto* R1 = *locate_R1;
+        
+        fmt::println("[{}] initial value: {}", register_name, R1->read().str());
+        
+        fmt::println("Writing `100` to [{}]", register_name);
+        R1->write(100);
+        
+        fmt::println("{} new value: {}", register_name, R1->read().str());
+    } else
     {
-        std::cerr << "Failed to locate R1\n";
+        printError(locate_R1.error(), register_name);
     }
-
+    
     // Test duplicate names.
-    auto duplicate = registers.include(
-        "R1", std::make_unique<detail::Register>(32));
+    auto duplicate = registers.include("R1", 32);
+    if (!duplicate)
+    {
+        printError(duplicate.error(), "R1");
+    }
 
-    std::cout << "Duplicate rejected: " << !duplicate << '\n';
+    std::string alt_register_name = "R2";
+    
+    auto removed = registers.remove(alt_register_name);
 
-    // Remove R2.
-    auto removed = registers.remove("R2");
-
-    std::cout << "R2 removed: " << static_cast<bool>(removed) << '\n';
-    std::cout << "R2 still exists: "
-              << static_cast<bool>(registers.locate("R2")) << '\n';
+    if (!removed)
+    {
+        printError(removed.error(), alt_register_name);
+    }
 }
+
 
 // ============================================================
 // Memory Tests
@@ -195,6 +205,14 @@ int main()
     testStack(registers);
 
     std::cout << "\n========== TESTS COMPLETE ==========\n";
+
+    fmt::print("Hello, Cryo!\n");
+
+    fmt::print("Register {} = {}\n", "R1", 100);
+
+    fmt::print(
+        fmt::fg(fmt::color::cyan),
+        "Formatting works!\n");
 
     return 0;
 }
