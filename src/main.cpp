@@ -29,9 +29,9 @@ void testRegisterFile(storage::RegisterFile& registers)
     fmt::println("Added @Register SP: {}", static_cast<bool>(add3));
 
     // Locate and modify R1.
-    std::string register_name = "Rz";
+    std::string_view register_name = "Rz";
     auto locate_R1 = registers.locate(register_name);
-    if (locate_R1)
+    if (locate_R1.has_value())
     {
         auto* R1 = *locate_R1;
         

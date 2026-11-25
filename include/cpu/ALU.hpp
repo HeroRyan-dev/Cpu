@@ -34,8 +34,8 @@ namespace cpu
 
     struct ALUResult
     {
-        qword_t value{};
-        qword_t high{};
+        types::qword_t value{};
+        types::qword_t high{};
 
         bool zero{};
         bool carry{};
@@ -50,25 +50,25 @@ namespace cpu
             static constexpr unsigned bit_width = 128;
             static constexpr unsigned sign_bit = bit_width - 1;
 
-            static unsigned getShiftAmount(qword_t value) noexcept
+            static unsigned getShiftAmount(types::qword_t value) noexcept
             {
                 return value >= bit_width
                     ? bit_width + 1
                     : static_cast<unsigned>(value);
             }
             
-            static bool isNegative(qword_t value) noexcept
+            static bool isNegative(types::qword_t value) noexcept
             {
                 return boost::multiprecision::bit_test(value, sign_bit);
             }
 
-            static bool addOverflow(qword_t a, qword_t b, qword_t result)
+            static bool addOverflow(types::qword_t a, types::qword_t b, types::qword_t result)
             {
                 return isNegative(a) == isNegative(b)
                     && isNegative(result) != isNegative(a);
             }
 
-            static bool subOverflow(qword_t a, qword_t b, qword_t result)
+            static bool subOverflow(types::qword_t a, types::qword_t b, types::qword_t result)
             {
                 return isNegative(a) != isNegative(b)
                     && isNegative(result) != isNegative(a);
@@ -80,22 +80,22 @@ namespace cpu
                 result.negative = isNegative(result.value);
             }
 
-            static bool subCarry(qword_t a, qword_t b)
+            static bool subCarry(types::qword_t a, types::qword_t b)
             {
                 return a < b;
             }
             
-            static qword_t lowWord(const cpu::word256_t& value)
+            static types::qword_t lowWord(const types::word256_t& value)
             {
-                static const cpu::word256_t mask =
-                    (cpu::word256_t(1) << bit_width) - 1;
+                static const types::word256_t mask =
+                    (types::word256_t(1) << bit_width) - 1;
 
-                return static_cast<qword_t>(value & mask);
+                return static_cast<types::qword_t>(value & mask);
             }
 
         public:
             std::expected<ALUResult, ALUError>
-            execute(ALUOperation operation, qword_t a, qword_t b) const
+            execute(ALUOperation operation, types::qword_t a, types::qword_t b) const
             {
                 ALUResult result{};
                 
@@ -105,7 +105,7 @@ namespace cpu
                 {
                     case ALUOperation::ADD:
                     {
-                        cpu::word256_t intermediate = a;
+                        types::word256_t intermediate = a;
                         intermediate += b;
 
                         result.value = lowWord(intermediate);
@@ -117,7 +117,7 @@ namespace cpu
 
                     case ALUOperation::SUB:
                     {
-                        cpu::word256_t intermediate = cpu::word256_t(1) << bit_width;
+                        types::word256_t intermediate = types::word256_t(1) << bit_width;
                         intermediate += a;
                         intermediate -= b;
 
@@ -130,11 +130,11 @@ namespace cpu
 
                     case ALUOperation::MUL:
                     {
-                        cpu::word256_t intermediate = a;
+                        types::word256_t intermediate = a;
                         intermediate *= b;
 
                         result.value = lowWord(intermediate);
-                        result.high  = static_cast<qword_t>(intermediate >> bit_width);
+                        result.high  = static_cast<types::qword_t>(intermediate >> bit_width);
 
                         result.carry = result.high != 0;
                         result.overflow = result.carry;
@@ -187,7 +187,7 @@ namespace cpu
                         result.value = shift >= bit_width ? 0 : a << shift;
 
                         result.carry = shift > 0 && shift <= bit_width
-                            ? boost::multiprecision::bit_test(a, bit_width - shift)
+                            ? boost::multiprecision::bit_test(static_cast<types::word256_t>(a), bit_width - shift)
                             : false;
 
                         break;
@@ -216,14 +216,14 @@ namespace cpu
                             result.value = a;
                         } else if (shift >= bit_width)
                         {
-                            result.value = negative ? ~qword_t(0) : qword_t(0);
+                            result.value = negative ? ~types::qword_t(0) : types::qword_t(0);
                         }
                         else
                         {
                             result.value = a >> shift;
 
                             if (negative)
-                                result.value |= (~qword_t(0)) << (bit_width - shift);
+                                result.value |= (~types::qword_t(0)) << (bit_width - shift);
                         }
 
                         result.carry = shift > 0 && shift <= bit_width

@@ -74,3 +74,9 @@
 3514	5684	8172802880537029	bin/Native/Cpu.exe	e3e88391331a6795
 38	3541	8173247426449861	obj/Cpu/Native/main.o	ee206190b1899fcd
 3541	6024	8173247461478183	bin/Native/Cpu.exe	e3e88391331a6795
+19	3817	8173286093526067	obj/Benchmarks/Release/RegiserFileBenchmark.o	26b9db17cfe51c0c
+3818	5008	8173286131507921	bin/Release/Benchmarks.exe	6adaae6197fed770
+12	3174	8173286772792013	obj/Benchmarks/Release/RegiserFileBenchmark.o	26b9db17cfe51c0c
+3174	3878	8173286804419585	bin/Release/Benchmarks.exe	6adaae6197fed770
+10	2909	8173287552907818	obj/Benchmarks/Release/RegiserFileBenchmark.o	26b9db17cfe51c0c
+2909	3707	8173287581898874	bin/Release/Benchmarks.exe	6adaae6197fed770

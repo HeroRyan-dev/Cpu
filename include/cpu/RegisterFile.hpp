@@ -14,6 +14,8 @@
 #include <utility>
 #include <expected>
 #include <iostream>
+#include <ranges>
+#include <algorithm>
 
 // Project includes
 #include "cpu/Register.hpp"
@@ -44,7 +46,7 @@ namespace cpu
             private:
                 static constexpr std::size_t capacity_ = 128;
                 
-                ///
+                /// @brief null
                 struct Entry
                 {
                     std::string name_;
@@ -57,7 +59,7 @@ namespace cpu
                 {
                     for (std::size_t i = 0; i < capacity_; ++i)
                     {
-                        if (entries_[i].name_.empty())
+                        if (!entries_[i].register_)
                         {
                             return i;
                         }
@@ -229,6 +231,4 @@ namespace cpu
                 }
         };
     }
-    
-    
 }
