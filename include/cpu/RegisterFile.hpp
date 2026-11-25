@@ -16,10 +16,11 @@
 #include <iostream>
 #include <ranges>
 #include <algorithm>
+#include <absl/container/flat_hash_map.h>
 
 // Project includes
-#include "cpu/Register.hpp"
 #include "cpu/Types.hpp"
+#include "cpu/Register.hpp"
 
 namespace cpu
 {
@@ -37,49 +38,79 @@ namespace cpu
         };
     }
 
+
+
+
+
+
+
+
     namespace storage
     {
+
+        struct StringHash
+        {
+            using is_transparent = void;
+
+            std::size_t operator()(std::string_view value) const noexcept
+            {
+                return absl::Hash<std::string_view>{}(value);
+            }
+        };
+
         /// @brief null
         class RegisterFile
         {
             
             private:
                 static constexpr std::size_t capacity_ = 128;
+            
+
+                std::array<std::unique_ptr<detail::Register>, capacity_> entries_;
                 
                 /// @brief null
-                struct Entry
+                absl::flat_hash_map<std::string, std::size_t, StringHash, std::equal_to<>> map_;
+
+                [[nodiscard]]
+                detail::Register* giveEntryByName(std::string_view name) noexcept
                 {
-                    std::string name_;
-                    std::unique_ptr<detail::Register> register_;
-                };
+                    auto it = map_.find(name);
 
-                std::array<Entry, capacity_> entries_{};
+                    if (it == map_.end())
+                        return nullptr;
 
+                    return entries_[it->second].get();
+                }
+
+                [[nodiscard]]
+                std::size_t findEntryIndex(std::string_view name) const noexcept
+                {
+                    auto it = map_.find(name);
+
+                    if (it == map_.end())
+                        return capacity_;
+
+                    return it->second;
+                }
+
+                [[nodiscard]]
                 std::size_t firstEmptyEntry() const noexcept
                 {
                     for (std::size_t i = 0; i < capacity_; ++i)
                     {
-                        if (!entries_[i].register_)
-                        {
-                            return i;
-                        }
-                    }
-            
-                    return capacity_; // No empty slot found
-
-                }
-                
-                std::size_t findEntryByName(std::string_view name) const noexcept
-                {
-                    for (std::size_t i = 0; i < capacity_; ++i)
-                    {
-                        if (entries_[i].name_ == name)
+                        if (!entries_[i])
                             return i;
                     }
-
-                    return capacity_; // Not found
                     
+                    return capacity_;
                 }
+
+                [[nodiscard]]
+                bool isValidName(std::string_view name) const noexcept
+                {
+                    return name.size() >= 2 && !std::isdigit(static_cast<unsigned char>(name.front()));
+                }
+
 
             public:
                 
@@ -90,33 +121,14 @@ namespace cpu
                 locate(std::string_view name) noexcept
                 {
                     
-                    auto entryIndex = findEntryByName(name);
+                    auto entry = giveEntryByName(name);
                     
-                    if (entryIndex == capacity_)
+                    if (!entry)
                     {
                         return std::unexpected(errors::RegisterError::NAME_NOT_FOUND);
                     }
 
-                    return entries_[entryIndex].register_.get();
-
-                }
-                
-                [[nodiscard]]
-                std::expected<detail::Register*, errors::RegisterError>
-                locate(types::register_id_t id) noexcept
-                {
-                    if (id >= capacity_)
-                    {
-                        return std::unexpected(errors::RegisterError::ID_NOT_FOUND);
-                    }
-
-                    if (!entries_[id].register_)
-                    {
-                        return std::unexpected(errors::RegisterError::NULL_REGISTER);
-                    }
-
-                    return entries_[id].register_.get();
-
+                    return entry;
 
                 }
 
@@ -126,7 +138,7 @@ namespace cpu
                     std::string_view name,
                     std::unique_ptr<detail::Register>&& register_ptr)
                 {
-                    if (name.empty())
+                    if (!isValidName(name))
                     {
                         return std::unexpected(errors::RegisterError::INVALID);
                     }
@@ -136,11 +148,6 @@ namespace cpu
                         return std::unexpected(errors::RegisterError::INVALID);
                     }
 
-                    if (findEntryByName(name) != capacity_)
-                    {
-                        return std::unexpected(errors::RegisterError::DUPLICATE_NAME);
-                    }
-
                     auto entry = firstEmptyEntry();
 
                     if (entry == capacity_)
@@ -148,10 +155,14 @@ namespace cpu
                         return std::unexpected(errors::RegisterError::FILE_FULL);
                     }
 
-                    std::string owned_name{name};
+                    auto [it, inserted] = map_.emplace(std::string{name}, entry);
 
-                    entries_[entry].name_     = std::move(owned_name);
-                    entries_[entry].register_ = std::move(register_ptr);
+                    if (!inserted)
+                    {
+                        return std::unexpected(errors::RegisterError::DUPLICATE_NAME);
+                    }
+
+                    entries_[entry] = std::move(register_ptr);
 
                     return {}; // Success
                 }
@@ -162,72 +173,92 @@ namespace cpu
                     std::string_view name,
                     types::byte_t width)
                 {
-
-                    auto reg = std::make_unique<detail::Register>(width);
-                    return include(name, std::move(reg));
-                }
-
-                [[nodiscard]]
-                std::expected<void, errors::RegisterError>
-                remove(std::string_view name) noexcept
-                {
-                    if (name.empty())
+                    if (!isValidName(name))
                     {
                         return std::unexpected(errors::RegisterError::INVALID);
                     }
 
-                    const auto entry = findEntryByName(name);
-                    
+                    auto entry = firstEmptyEntry();
+
                     if (entry == capacity_)
                     {
-                        return std::unexpected(errors::RegisterError::NAME_NOT_FOUND);
+                        return std::unexpected(errors::RegisterError::FILE_FULL);
+                    }
+                    
+                    auto reg = std::make_unique<detail::Register>(width);
+
+                    auto [it, inserted] = map_.emplace(std::string{name}, entry);
+
+                    if (!inserted)
+                    {
+                        return std::unexpected(errors::RegisterError::DUPLICATE_NAME);
                     }
 
-                    entries_[entry].name_.clear();
-                    entries_[entry].register_.reset();
-                    
+                    entries_[entry] = std::move(reg);
+
                     return {}; // Success
                 }
-                
+
+                [[nodiscard]]
+                std::expected<void, errors::RegisterError>
+                remove(std::string_view name)
+                {
+                    if (!isValidName(name))
+                        return std::unexpected(errors::RegisterError::INVALID);
+
+                    auto it = map_.find(name);
+
+                    if (it == map_.end())
+                        return std::unexpected(errors::RegisterError::NAME_NOT_FOUND);
+
+                    entries_[it->second].reset();
+                    map_.erase(it);
+
+                    return {};
+                }
+
                 void clear() noexcept
                 {
+                    map_.clear();
+                    
                     for (auto& entry : entries_)
                     {
-                        entry.name_.clear();
-                        entry.register_.reset();
+                        entry.reset();
                     }
+
                 }
 
                 [[nodiscard]]
                 bool contains(std::string_view name) const noexcept
                 {
-                    return findEntryByName(name) != capacity_;
+                    return findEntryIndex(name) != capacity_;
                 }
 
                 [[nodiscard]]
-                std::expected<detail::Register*, errors::RegisterError>
+                std::expected<detail::Register *, errors::RegisterError>
                 rename(std::string_view old_name, std::string_view new_name) noexcept
                 {
-                    if (old_name.empty() || new_name.empty())
-                    {
+                    if (!isValidName(old_name) || !isValidName(new_name))
                         return std::unexpected(errors::RegisterError::INVALID);
-                    }
 
-                    const auto entry = findEntryByName(old_name);
+                    auto it = map_.find(old_name);
 
-                    if (entry == capacity_)
-                    {
+                    if (it == map_.end())
                         return std::unexpected(errors::RegisterError::NAME_NOT_FOUND);
-                    }
 
-                    if (findEntryByName(new_name) != capacity_)
-                    {
+                    if (map_.contains(new_name))
                         return std::unexpected(errors::RegisterError::DUPLICATE_NAME);
-                    }
 
-                    entries_[entry].name_ = std::string{new_name};
+                    const auto entry = it->second;
 
-                    return {}; // Success
+                    auto [new_it, inserted] = map_.emplace(std::string{new_name}, entry);
+
+                    if (!inserted)
+                        return std::unexpected(errors::RegisterError::DUPLICATE_NAME);
+
+                    map_.erase(it);
+
+                    return entries_[entry].get();
                 }
         };
     }

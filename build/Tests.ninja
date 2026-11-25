@@ -54,7 +54,7 @@ rule custom
 
 cflags_Tests_Debug = -m64 -O0 -g -Wall -Wextra -D"DEBUG" -IC:/msys64/ucrt64/include -I../include -Wall -Wextra -Wpedantic -Wconversion -Wcast-align -Wunused -Wshadow -freflection -O0
 cxxflags_Tests_Debug = -m64 -O0 -g -Wall -Wextra -std=c++26 -D"DEBUG" -IC:/msys64/ucrt64/include -I../include -Wall -Wextra -Wpedantic -Wconversion -Wcast-align -Wunused -Wshadow -freflection -O0
-ldflags_Tests_Debug = -m64 -LC:/msys64/ucrt64/lib -L/usr/lib64
+ldflags_Tests_Debug = -m64 -LC:/msys64/ucrt64/bin/../lib -labsl_raw_hash_set -labsl_cord -labsl_cordz_info -labsl_cord_internal -labsl_cordz_functions -labsl_cordz_handle -labsl_crc_cord_state -labsl_crc32c -labsl_crc_internal -labsl_crc_cpu_detect -labsl_str_format_internal -labsl_hash -labsl_city -labsl_hashtablez_sampler -labsl_exponential_biased -labsl_synchronization -labsl_graphcycles_internal -labsl_kernel_timeout_internal -labsl_stacktrace -labsl_symbolize -ldbghelp -labsl_debugging_internal -labsl_demangle_internal -labsl_demangle_rust -labsl_decode_rust_punycode -labsl_utf8_for_code_point -labsl_malloc_internal -labsl_tracing_internal -labsl_time -labsl_civil_time -labsl_strings -labsl_strings_internal -labsl_int128 -labsl_base -ladvapi32 -labsl_spinlock_wait -labsl_source_location -labsl_time_zone -labsl_throw_delegate -labsl_raw_logging_internal -labsl_log_severity -LC:/msys64/ucrt64/lib -L/usr/lib64
 links_Tests_Debug = -lfmt -lgtest -lgtest_main
 objdir_Tests_Debug = obj/Tests/Debug
 targetdir_Tests_Debug = bin/Debug
@@ -70,7 +70,7 @@ build bin/Debug/Tests.exe: link_gcc obj/Tests/Debug/example.o
 
 cflags_Tests_Release = -m64 -O3 -g -Wall -Wextra -D"NDEBUG" -IC:/msys64/ucrt64/include -I../include -Wall -Wextra -Wpedantic -Wconversion -Wcast-align -Wunused -Wshadow -freflection -O3 -march=x86-64 -flto -mtune=native -fomit-frame-pointer
 cxxflags_Tests_Release = -m64 -O3 -g -Wall -Wextra -std=c++26 -D"NDEBUG" -IC:/msys64/ucrt64/include -I../include -Wall -Wextra -Wpedantic -Wconversion -Wcast-align -Wunused -Wshadow -freflection -O3 -march=x86-64 -flto -mtune=native -fomit-frame-pointer
-ldflags_Tests_Release = -m64 -flto -LC:/msys64/ucrt64/lib -L/usr/lib64
+ldflags_Tests_Release = -m64 -LC:/msys64/ucrt64/bin/../lib -labsl_raw_hash_set -labsl_cord -labsl_cordz_info -labsl_cord_internal -labsl_cordz_functions -labsl_cordz_handle -labsl_crc_cord_state -labsl_crc32c -labsl_crc_internal -labsl_crc_cpu_detect -labsl_str_format_internal -labsl_hash -labsl_city -labsl_hashtablez_sampler -labsl_exponential_biased -labsl_synchronization -labsl_graphcycles_internal -labsl_kernel_timeout_internal -labsl_stacktrace -labsl_symbolize -ldbghelp -labsl_debugging_internal -labsl_demangle_internal -labsl_demangle_rust -labsl_decode_rust_punycode -labsl_utf8_for_code_point -labsl_malloc_internal -labsl_tracing_internal -labsl_time -labsl_civil_time -labsl_strings -labsl_strings_internal -labsl_int128 -labsl_base -ladvapi32 -labsl_spinlock_wait -labsl_source_location -labsl_time_zone -labsl_throw_delegate -labsl_raw_logging_internal -labsl_log_severity -flto -LC:/msys64/ucrt64/lib -L/usr/lib64
 links_Tests_Release = -lfmt -lgtest -lgtest_main
 objdir_Tests_Release = obj/Tests/Release
 targetdir_Tests_Release = bin/Release
@@ -86,7 +86,7 @@ build bin/Release/Tests.exe: link_gcc obj/Tests/Release/example.o
 
 cflags_Tests_Native = -m64 -O3 -g -Wall -Wextra -D"NDEBUG" -IC:/msys64/ucrt64/include -I../include -Wall -Wextra -Wpedantic -Wconversion -Wcast-align -Wunused -Wshadow -freflection -Ofast -march=native -mtune=native -fomit-frame-pointer -flto
 cxxflags_Tests_Native = -m64 -O3 -g -Wall -Wextra -std=c++26 -D"NDEBUG" -IC:/msys64/ucrt64/include -I../include -Wall -Wextra -Wpedantic -Wconversion -Wcast-align -Wunused -Wshadow -freflection -Ofast -march=native -mtune=native -fomit-frame-pointer -flto
-ldflags_Tests_Native = -m64 -LC:/msys64/ucrt64/lib -L/usr/lib64
+ldflags_Tests_Native = -m64 -LC:/msys64/ucrt64/bin/../lib -labsl_raw_hash_set -labsl_cord -labsl_cordz_info -labsl_cord_internal -labsl_cordz_functions -labsl_cordz_handle -labsl_crc_cord_state -labsl_crc32c -labsl_crc_internal -labsl_crc_cpu_detect -labsl_str_format_internal -labsl_hash -labsl_city -labsl_hashtablez_sampler -labsl_exponential_biased -labsl_synchronization -labsl_graphcycles_internal -labsl_kernel_timeout_internal -labsl_stacktrace -labsl_symbolize -ldbghelp -labsl_debugging_internal -labsl_demangle_internal -labsl_demangle_rust -labsl_decode_rust_punycode -labsl_utf8_for_code_point -labsl_malloc_internal -labsl_tracing_internal -labsl_time -labsl_civil_time -labsl_strings -labsl_strings_internal -labsl_int128 -labsl_base -ladvapi32 -labsl_spinlock_wait -labsl_source_location -labsl_time_zone -labsl_throw_delegate -labsl_raw_logging_internal -labsl_log_severity -LC:/msys64/ucrt64/lib -L/usr/lib64
 links_Tests_Native = -lfmt -lgtest -lgtest_main
 objdir_Tests_Native = obj/Tests/Native
 targetdir_Tests_Native = bin/Native

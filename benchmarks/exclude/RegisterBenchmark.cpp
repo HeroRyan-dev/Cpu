@@ -5,6 +5,7 @@
 
 #include <boost/multiprecision/cpp_int.hpp>
 #include <boost/multiprecision/cpp_int/literals.hpp>
+#
 
 #include <cstdint>
 
@@ -139,6 +140,26 @@ namespace
             benchmark::DoNotOptimize(result);
         }
     }
+
+    static void BM_FindEntryByName(benchmark::State &state)
+    {
+        cpu::storage::RegisterFile registers;
+        populate(registers);
+
+        const auto name = registerName(state.range(0));
+
+        for (auto _ : state)
+        {
+            auto result = registers.findEntryByName(name);
+            benchmark::DoNotOptimize(result);
+        }
+    }
+
+    BENCHMARK(BM_FindEntryByName)
+        ->Arg(0)
+        ->Arg(64)
+        ->Arg(127)
+        ->Arg(128);
 
     // ---------------------------------------------------------
     // Register registrations

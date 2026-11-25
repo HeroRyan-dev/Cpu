@@ -14,6 +14,16 @@ function configureDependencies()
     links {
         "fmt"
     }
+
+    local absl = os.outputof("pkg-config --libs absl_flat_hash_map")
+
+    if not absl then
+        error("Failed to retrieve Abseil linker dependencies.")
+    end
+
+    linkoptions {
+        absl
+    }
 end
 
 
