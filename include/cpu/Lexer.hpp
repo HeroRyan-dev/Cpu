@@ -26,11 +26,21 @@ namespace cpu
                 return c >= '0' && c <= '9';
             }
 
+            constexpr bool isOctalDigit(char c) noexcept
+            {
+                return c >= '0' && c <= '7';
+            }
+
             constexpr bool isHexDigit(char c) noexcept
             {
                 return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f');
             }
         
+            constexpr bool isBinaryDigit(char c) noexcept
+            {
+                return c == '0' || c == '1';
+            }
+
             constexpr bool isAlphaNumeric(char c) noexcept
             {
                 return isAlphabetic(c) || isDigit(c);
@@ -115,8 +125,8 @@ namespace cpu
                         switch (peekNext())
                         {
                             case 'x': base = 16; break;
-                            case 'b': base = 2; break;
-                            case 'o': base = 8; break;
+                            case 'b': base = 2;  break;
+                            case 'o': base = 8;  break;
                             default: break;
                         }
                         
@@ -127,27 +137,57 @@ namespace cpu
                         }
                     }
 
-
-                    get(); // <- First digit consumed
-
-
-
-                    while (detail::isDigitForBase(peek(), base)) // Continue consuming characters for the number
+                    switch (base)
                     {
-                        get();
-                    }
-
-                    if (base == 10 && peek() == '.')
-                    {
-                        bool isFloatingPoint = true;
-                        get(); // Consume the '.'
-
-                        while (detail::isDigitForBase(peek(), base))
+                        case 2: // Binary, consume all binary digits
                         {
-                            get();
+                            while (detail::isBinaryDigit(peek()))
+                            {
+                                get();
+                            }
+                            break;
+                        }
+                        case 8: // Octal, consume all octal digits
+                        {
+                            while (detail::isOctalDigit(peek()))
+                            {
+                                get();
+                            }
+                            break;
+                        }
+                        case 10: // Decimal, consume all decimal digits
+                        {
+                            while (detail::isDigit(peek()))
+                            {
+                                get();
+                            }
+                            
+                            if (peek() == '.')
+                            {
+                                get(); // Consume the '.'
+
+                                while (detail::isDigit(peek()))
+                                {
+                                    get();
+                                }
+                            }
+                            
+                            break;
+                        }
+                        case 16: // Hexadecimal, consume all hexadecimal digits
+                        {
+                            while (detail::isDigitForBase(peek(), base))
+                            {
+                                get();
+                            }
+                            break;
+                        }
+                        
+                        default:
+                        {
+                            break;
                         }
                     }
-
 
                     return Token{
                         Token::Kind::Number,

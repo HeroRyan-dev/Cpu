@@ -23,6 +23,8 @@ namespace cpu
                     Char,
                     Address,
 
+                    MalformedLiteral,
+                    Unknown,
                     EndOfFile
                 };
 
