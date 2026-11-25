@@ -69,10 +69,10 @@ namespace cpu
         
             private:
                 std::string_view source_{};
-                std::size_t position_{0};
+                std::size_t position_{};
 
                 /// @brief null
-                char peek() const noexcept
+                char current() const noexcept
                 {
                     return position_ < source_.size()
                         ? source_[position_]
@@ -80,7 +80,7 @@ namespace cpu
                 }
 
                 /// @brief null
-                char peekNext() const noexcept
+                char next() const noexcept
                 {
                     return position_ + 1 < source_.size()
                         ? source_[position_ + 1]
@@ -88,7 +88,7 @@ namespace cpu
                 }
 
                 /// @brief null
-                char get() noexcept
+                char consume() noexcept
                 {
                     return position_ < source_.size()
                         ? source_[position_++]
@@ -102,7 +102,7 @@ namespace cpu
                 {
                     const std::size_t start = position_;
 
-                    get();
+                    consume();
 
                     while (false) // Continue consuming characters for the identifier
                     {
@@ -119,10 +119,12 @@ namespace cpu
                 {
                     const std::size_t start = position_;
                     unsigned int base = 10; // Default base is decimal
+                    bool valid = true;
 
-                    if (peek() == '0')
+
+                    if (current() == '0')
                     {
-                        switch (peekNext())
+                        switch (next())
                         {
                             case 'x': base = 16; break;
                             case 'b': base = 2;  break;
@@ -132,8 +134,8 @@ namespace cpu
                         
                         if (base != 10)
                         {
-                            get(); // Consume '0'
-                            get(); // Consume the base prefix ('x', 'b', or 'o')
+                            consume(); // Consume '0'
+                            consume(); // Consume the base prefix ('x', 'b', or 'o')
                         }
                     }
 
@@ -141,34 +143,34 @@ namespace cpu
                     {
                         case 2: // Binary, consume all binary digits
                         {
-                            while (detail::isBinaryDigit(peek()))
+                            while (detail::isBinaryDigit(current()))
                             {
-                                get();
+                                consume();
                             }
                             break;
                         }
                         case 8: // Octal, consume all octal digits
                         {
-                            while (detail::isOctalDigit(peek()))
+                            while (detail::isOctalDigit(current()))
                             {
-                                get();
+                                consume();
                             }
                             break;
                         }
                         case 10: // Decimal, consume all decimal digits
                         {
-                            while (detail::isDigit(peek()))
+                            while (detail::isDigit(current()))
                             {
-                                get();
+                                consume();
                             }
                             
-                            if (peek() == '.')
+                            if (current() == '.')
                             {
-                                get(); // Consume the '.'
+                                consume(); // Consume the '.'
 
-                                while (detail::isDigit(peek()))
+                                while (detail::isDigit(current()))
                                 {
-                                    get();
+                                    consume();
                                 }
                             }
                             
@@ -176,9 +178,9 @@ namespace cpu
                         }
                         case 16: // Hexadecimal, consume all hexadecimal digits
                         {
-                            while (detail::isDigitForBase(peek(), base))
+                            while (detail::isDigitForBase(current(), base))
                             {
-                                get();
+                                consume();
                             }
                             break;
                         }
@@ -199,7 +201,7 @@ namespace cpu
                 {
                     const std::size_t start = position_;
 
-                    get();
+                    consume();
 
                     return Token{
                         Token::Kind::Address,
@@ -215,17 +217,17 @@ namespace cpu
                     // N/A
                 }
 
-                Token next() noexcept
+                Token advance() noexcept
                 {
 
                     // First char scans
                     
-                    while (detail::isWhitespace(peek()))
+                    while (detail::isWhitespace(current()))
                     {
-                        get();
+                        consume();
                     }
 
-                    const char c = peek();
+                    const char c = current();
 
                     if (c == '\0')
                     {
