@@ -1,0 +1,62 @@
+/*
+    Cpu\include\cpu\storage\Memory.hpp
+    Defines the Memory class for the CPU project.
+*/
+
+#pragma once
+
+// Standard library includes
+#include <array>
+#include <cstdint>
+#include <expected>
+
+// Project includes
+#include "cpu/Types.hpp"
+#include "cpu/errors/MemoryError.hpp"
+
+namespace cpu::storage
+{
+    /// @brief null
+    class Memory
+    {
+        private:
+            
+            constexpr static std::size_t capacity_ = 1 << 14;
+
+            std::array<types::word_t, capacity_> storage_;
+        
+        public:
+            
+            /// @brief null
+            Memory() : storage_{} {}
+
+            [[nodiscard]]
+            /// @brief null
+            std::expected<types::word_t, errors::MemoryError>
+            read(types::address_t address) const noexcept
+            {
+                if (address >= capacity_)
+                {
+                    return std::unexpected(errors::MemoryError::AddressOutOfBounds);
+                }
+                
+                return storage_[address];
+
+            }
+
+            [[nodiscard]]
+            /// @brief null
+            std::expected<void, errors::MemoryError>
+            write(types::address_t address, types::word_t value) noexcept
+            {
+                if (address >= capacity_)
+                {
+                    return std::unexpected(errors::MemoryError::AddressOutOfBounds);
+                }
+
+                storage_[address] = value;
+                return {};
+            }
+    
+    };
+}
