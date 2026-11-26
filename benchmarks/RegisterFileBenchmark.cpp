@@ -1,4 +1,3 @@
-
 #include <array>
 #include <cstdint>
 #include <memory>
@@ -6,12 +5,12 @@
 
 #include <benchmark/benchmark.h>
 
-#include "cpu/Register.hpp"
-#include "cpu/RegisterFile.hpp"
+#include "cpu/registers/Register.hpp"
+#include "cpu/registers/RegisterFile.hpp"
 
 namespace
 {
-    constexpr std::size_t RegisterTotal = cpu::RegisterCount;
+    constexpr std::size_t RegisterTotal = cpu::registers::RegisterCount;
 
     constexpr std::array<std::string_view, RegisterTotal> RegisterNames =
     {
@@ -27,7 +26,7 @@ namespace
 
     static void BM_Register_Read(benchmark::State& state)
     {
-        cpu::Register reg;
+        cpu::registers::Register reg;
         reg = 12345;
 
         for (auto _ : state)
@@ -38,7 +37,7 @@ namespace
 
     static void BM_Register_Write(benchmark::State& state)
     {
-        cpu::Register reg;
+        cpu::registers::Register reg;
         cpu::qword value = 0;
 
         benchmark::DoNotOptimize(&reg);
@@ -56,21 +55,21 @@ namespace
 
     static void BM_RegisterFile_EnumRead(benchmark::State& state)
     {
-        auto registers = std::make_unique<cpu::RegisterFile>();
+        auto registerFile = std::make_unique<cpu::registers::RegisterFile>();
 
         for (std::size_t i = 0; i < RegisterTotal; ++i)
         {
-            (*registers)[static_cast<cpu::RegisterId>(i)] = i + 1;
+            (*registerFile)[static_cast<cpu::registers::RegisterId>(i)] = i + 1;
         }
 
-        benchmark::DoNotOptimize(registers.get());
+        benchmark::DoNotOptimize(registerFile.get());
 
         std::size_t index = 0;
 
         for (auto _ : state)
         {
             cpu::qword value =
-                (*registers)[static_cast<cpu::RegisterId>(index)];
+                (*registerFile)[static_cast<cpu::registers::RegisterId>(index)];
 
             benchmark::DoNotOptimize(value);
 
@@ -80,16 +79,16 @@ namespace
 
     static void BM_RegisterFile_EnumWrite(benchmark::State& state)
     {
-        auto registers = std::make_unique<cpu::RegisterFile>();
+        auto registerFile = std::make_unique<cpu::registers::RegisterFile>();
 
-        benchmark::DoNotOptimize(registers.get());
+        benchmark::DoNotOptimize(registerFile.get());
 
         cpu::qword value = 0;
         std::size_t index = 0;
 
         for (auto _ : state)
         {
-            (*registers)[static_cast<cpu::RegisterId>(index)] = value++;
+            (*registerFile)[static_cast<cpu::registers::RegisterId>(index)] = value++;
 
             benchmark::ClobberMemory();
 
@@ -103,20 +102,20 @@ namespace
 
     static void BM_RegisterFile_StringRead(benchmark::State& state)
     {
-        auto registers = std::make_unique<cpu::RegisterFile>();
+        auto registerFile = std::make_unique<cpu::registers::RegisterFile>();
 
         for (std::size_t i = 0; i < RegisterTotal; ++i)
         {
-            (*registers)[static_cast<cpu::RegisterId>(i)] = i + 1;
+            (*registerFile)[static_cast<cpu::registers::RegisterId>(i)] = i + 1;
         }
 
-        benchmark::DoNotOptimize(registers.get());
+        benchmark::DoNotOptimize(registerFile.get());
 
         std::size_t index = 0;
 
         for (auto _ : state)
         {
-            cpu::qword value = (*registers)[RegisterNames[index]];
+            cpu::qword value = (*registerFile)[RegisterNames[index]];
 
             benchmark::DoNotOptimize(value);
 
@@ -126,16 +125,16 @@ namespace
 
     static void BM_RegisterFile_StringWrite(benchmark::State& state)
     {
-        auto registers = std::make_unique<cpu::RegisterFile>();
+        auto registerFile = std::make_unique<cpu::registers::RegisterFile>();
 
-        benchmark::DoNotOptimize(registers.get());
+        benchmark::DoNotOptimize(registerFile.get());
 
         cpu::qword value = 0;
         std::size_t index = 0;
 
         for (auto _ : state)
         {
-            (*registers)[RegisterNames[index]] = value++;
+            (*registerFile)[RegisterNames[index]] = value++;
 
             benchmark::ClobberMemory();
 
@@ -149,17 +148,17 @@ namespace
 
     static void BM_RegisterFile_EnumArithmetic(benchmark::State& state)
     {
-        auto registers = std::make_unique<cpu::RegisterFile>();
+        auto registerFile = std::make_unique<cpu::registers::RegisterFile>();
 
-        (*registers)[cpu::R1] = 123;
-        (*registers)[cpu::R2] = 456;
+        (*registerFile)[cpu::registers::R1] = 123;
+        (*registerFile)[cpu::registers::R2] = 456;
 
-        benchmark::DoNotOptimize(registers.get());
+        benchmark::DoNotOptimize(registerFile.get());
 
         for (auto _ : state)
         {
             cpu::qword result =
-                (*registers)[cpu::R1] + (*registers)[cpu::R2];
+                (*registerFile)[cpu::registers::R1] + (*registerFile)[cpu::registers::R2];
 
             benchmark::DoNotOptimize(result);
         }
@@ -167,17 +166,17 @@ namespace
 
     static void BM_RegisterFile_StringArithmetic(benchmark::State& state)
     {
-        auto registers = std::make_unique<cpu::RegisterFile>();
+        auto registerFile = std::make_unique<cpu::registers::RegisterFile>();
 
-        (*registers)["R1"] = 123;
-        (*registers)["R2"] = 456;
+        (*registerFile)["R1"] = 123;
+        (*registerFile)["R2"] = 456;
 
-        benchmark::DoNotOptimize(registers.get());
+        benchmark::DoNotOptimize(registerFile.get());
 
         for (auto _ : state)
         {
             cpu::qword result =
-                (*registers)["R1"] + (*registers)["R2"];
+                (*registerFile)["R1"] + (*registerFile)["R2"];
 
             benchmark::DoNotOptimize(result);
         }
