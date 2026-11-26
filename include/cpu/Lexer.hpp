@@ -397,16 +397,17 @@ namespace cpu
                     const std::size_t start = position_;
 
                     consume(); // Consume '@'
-
-                    if (!detail::isDecimal(current()))
+    
+                    while (current() != '\0' &&
+                            !detail::isNumberTerminatorChar(current()))
                     {
-                        while (!detail::isNumberTerminatorChar(current()))
-                            consume();
+                        consume();
+                    }
 
                         return Token{
                             Token::Kind::Invalid,
                             source_.substr(start, position_ - start)};
-                    }
+                    
 
                     Token token = number(Token::Kind::Address);
 

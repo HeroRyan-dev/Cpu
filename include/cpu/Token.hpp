@@ -5,9 +5,8 @@
 
 namespace cpu
 {
-    namespace parser
+    namespace lexer
     {
-        
         /// @brief null
         class Token
         {

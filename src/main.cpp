@@ -12,8 +12,8 @@
 int main()
 {
 
-    auto tokens = cpu::parser::tokenize("@2+2+0x0000 -> 2");
+    auto tokens = cpu::parser::tokenize("@2+2+0x0000 -> 2x");
     for (const auto &token : tokens)
-        std::cout << "Token: " << static_cast<int>(token.kind()) << '\n';
+        std::cout << "Token: " << static_cast<int>(token.kind()) << " \"" << token.text() << "\"" << '\n';
 
 }
