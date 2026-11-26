@@ -6,8 +6,8 @@
 #include <unordered_map>
 #include <vector>
 
-#include "cpu/Token.hpp"
-#include "cpu/Lexer.hpp"
+#include "cpu/parser/Token.hpp"
+#include "cpu/parser/Lexer.hpp"
 
 int main()
 {
