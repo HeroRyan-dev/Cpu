@@ -413,10 +413,13 @@ namespace cpu
                     const bool valid = token.kind() == Token::Kind::Address;
 
                     return Token{
-                        valid ? Token::Kind::Address : Token::Kind::Invalid,
+                        valid
+                            ? Token::Kind::Address
+                            : Token::Kind::Invalid,
                         source_.substr(start, position_ - start)};
                 }
 
+                /// @brief null
                 Token symbol() noexcept
                 {
                     const std::size_t start = position_;
@@ -462,6 +465,7 @@ namespace cpu
 
             public:
                 
+                /// @brief null
                 void reset() noexcept
                 {
                     position_ = 0;
@@ -474,6 +478,7 @@ namespace cpu
                     // N/A
                 }
 
+                /// @brief null
                 Token advance() noexcept
                 {
                     while (detail::isWhitespace(current()))
@@ -498,6 +503,27 @@ namespace cpu
 
                     return symbol();
                 }
-        };
+        
+            };
+
+            inline std::vector<Token> tokenize(std::string_view source)
+            {
+                Lexer lexer(source);
+
+                std::vector<Token> tokens;
+                tokens.reserve(source.size() / 2);
+
+                while (true)
+                {
+                    Token token = lexer.advance();
+
+                    if (token.kind() == Token::Kind::EndOfFile)
+                        break;
+
+                    tokens.push_back(token);
+                }
+
+                return tokens;
+            }
     }
 }
