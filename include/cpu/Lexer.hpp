@@ -2,9 +2,13 @@
 
 #include <string_view>
 #include "Token.hpp"
+#include <boost/multiprecision/cpp_int.hpp>
+#include <cstddef>
+#include <expected>
 
 namespace cpu
 {
+
     namespace parser
     {
 
@@ -21,55 +25,77 @@ namespace cpu
                 return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
             }
 
-            constexpr bool isDigit(char c) noexcept
+            constexpr bool isDecimal(char c) noexcept
             {
                 return c >= '0' && c <= '9';
             }
 
-            constexpr bool isOctalDigit(char c) noexcept
+            constexpr bool isOctal(char c) noexcept
             {
                 return c >= '0' && c <= '7';
             }
 
-            constexpr bool isHexDigit(char c) noexcept
+            constexpr bool isHexadecimal(char c) noexcept
             {
                 return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f');
             }
         
-            constexpr bool isBinaryDigit(char c) noexcept
+            constexpr bool isBinary(char c) noexcept
             {
                 return c == '0' || c == '1';
             }
 
             constexpr bool isAlphaNumeric(char c) noexcept
             {
-                return isAlphabetic(c) || isDigit(c);
+                return isAlphabetic(c) || isDecimal(c);
             }
 
-            constexpr bool isDigitForBase(char c, unsigned int base) noexcept
+            constexpr bool isNumberTerminator(char c) noexcept
             {
-                if (base == 2)
-                    return c >= '0' && c <= '1';
-                if (base == 8)
-                    return c >= '0' && c <= '7';
-                if (base == 10)
-                    return isDigit(c);
-                if (base == 16)
-                    return isHexDigit(c);
-
-                return false;
+                return isWhitespace(c) ||
+                    c == '\0' ||
+                    c == '+'  ||
+                    c == '-'  ||
+                    c == '*'  ||
+                    c == '/'  ||
+                    c == '%'  ||
+                    c == '^'  ||
+                    c == '('  ||
+                    c == ')'  ||
+                    c == '['  ||
+                    c == ']'  ||
+                    c == '{'  ||
+                    c == '}';
             }
-        }
-    
+
+            constexpr bool isIdentifierTerminator(char c) noexcept
+            {
+                return isWhitespace(c) ||
+                    c == '\0' ||
+                    c == '+'  ||
+                    c == '-'  ||
+                    c == '*'  ||
+                    c == '/'  ||
+                    c == '%'  ||
+                    c == '^';
+
+            }
+
+            constexpr bool isIdentifierChar(char c) noexcept
+            {
+                return isAlphaNumeric(c) || c == '_';
+            }
+
+        }; // namespace detail
 
 
         /// @brief null
         class Lexer
         {
-        
+            
             private:
                 std::string_view source_{};
-                std::size_t position_{};
+                std::size_t      position_{};
 
                 /// @brief null
                 char current() const noexcept
@@ -104,96 +130,146 @@ namespace cpu
 
                     consume();
 
-                    while (false) // Continue consuming characters for the identifier
+                    while (detail::isIdentifierChar(current()))
+                        consume();
+                    
+                    if (!detail::isIdentifierTerminator(current()))
                     {
-                        // Implement logic to continue consuming characters for the identifier
+                        while (!detail::isIdentifierTerminator(current()))
+                            consume();
+                        
+                    
+                        return Token {
+                            Token::Kind::Invalid,
+                            source_.substr(start, position_ - start)
+                        };
                     }
 
-                    return Token{
+                    return Token {
                         Token::Kind::Identifier,
-                        source_.substr(start, position_ - start)};
+                        source_.substr(start, position_ - start)
+                    };
                 }
 
                 /// @brief null
                 Token number() noexcept
                 {
                     const std::size_t start = position_;
-                    unsigned int base = 10; // Default base is decimal
-                    bool valid = true;
 
+                    bool valid = true;
+                    bool floating = false;
+                    bool hasDigits = false;
+                    bool prefixed = false;
 
                     if (current() == '0')
                     {
-                        switch (next())
-                        {
-                            case 'x': base = 16; break;
-                            case 'b': base = 2;  break;
-                            case 'o': base = 8;  break;
-                            default: break;
-                        }
-                        
-                        if (base != 10)
-                        {
-                            consume(); // Consume '0'
-                            consume(); // Consume the base prefix ('x', 'b', or 'o')
-                        }
-                    }
+                        prefixed = true;
+                        consume(); // Consume the '0' character for all non-decimal literals
 
-                    switch (base)
-                    {
-                        case 2: // Binary, consume all binary digits
+                        switch (current())
                         {
-                            while (detail::isBinaryDigit(current()))
+                            case 'b':
                             {
+                                hasDigits = true;
                                 consume();
-                            }
-                            break;
-                        }
-                        case 8: // Octal, consume all octal digits
-                        {
-                            while (detail::isOctalDigit(current()))
-                            {
-                                consume();
-                            }
-                            break;
-                        }
-                        case 10: // Decimal, consume all decimal digits
-                        {
-                            while (detail::isDigit(current()))
-                            {
-                                consume();
-                            }
-                            
-                            if (current() == '.')
-                            {
-                                consume(); // Consume the '.'
 
-                                while (detail::isDigit(current()))
-                                {
+
+                                while (detail::isBinary(current()))
                                     consume();
-                                }
+                                
+                                break;
+                            }
+
+                            case 'o':
+                            {
+                                hasDigits = true;
+                                consume();
+
+                                while (detail::isOctal(current()))
+                                    consume();
+                                
+                                break;
                             }
                             
-                            break;
-                        }
-                        case 16: // Hexadecimal, consume all hexadecimal digits
-                        {
-                            while (detail::isDigitForBase(current(), base))
+                            case 'x':
                             {
+                                hasDigits = true;
                                 consume();
+                                
+                                while (detail::isHexadecimal(current()))
+                                    consume();
+                                
+                                break;
                             }
-                            break;
-                        }
-                        
-                        default:
-                        {
-                            break;
+               
+                            case '.':
+                            {
+                                floating = true;
+                                hasDigits = true;
+                                prefixed = true;
+                                consume();
+                                break;
+                            }
+
+                            default:
+                            {
+                                prefixed = false;
+
+                                hasDigits = true;
+
+                                if (!detail::isDecimal(current()))
+                                {
+                                    valid = false;
+                                
+                                    while (detail::isDecimal(current()))
+                                        consume();
+                                
+                                }
+
+                                break;
+                            }
+                                          
                         }
                     }
+                    else
+                    {
+                        while (detail::isDecimal(current()))
+                        {
+                            hasDigits = true;
+                            consume();
 
-                    return Token{
-                        Token::Kind::Number,
-                        source_.substr(start, position_ - start)};
+                        }
+
+                        if (current() == '.')
+                        {
+                            floating = true;
+                            consume();
+                        
+                            while (detail::isDecimal(current()))
+                                consume();
+                        }
+                    }
+                    
+                    if (prefixed && !hasDigits)
+                        valid = false;
+                    
+                    if (!detail::isNumberTerminator(current()))
+                    {
+                        valid = false;
+
+                        // Consume the rest of the malformed literals
+                        while (current() != '\0' && !detail::isWhitespace(current()))
+                            consume();
+                    }
+
+                    return Token {
+                        valid
+                            ? (floating
+                                ? Token::Kind::Floating
+                                : Token::Kind::Number)
+                            : Token::Kind::Invalid,
+                            source_.substr(start, position_ - start)
+                    };
                 }
 
                 /// @brief null
@@ -202,6 +278,7 @@ namespace cpu
                     const std::size_t start = position_;
 
                     consume();
+
 
                     return Token{
                         Token::Kind::Address,
@@ -244,7 +321,10 @@ namespace cpu
                         return number();
                     }
 
-
+                    if (c == '@')
+                    {
+                        return address();
+                    }
                 }
 
         };

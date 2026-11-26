@@ -17,12 +17,14 @@ namespace cpu
                 enum class Kind
                 {
                     Number,
+                    Floating,
                     Identifier,
                     Hex,
                     Binary,
                     Char,
                     Address,
 
+                    Invalid,
                     MalformedLiteral,
                     Unknown,
                     EndOfFile
