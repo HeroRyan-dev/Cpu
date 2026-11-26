@@ -14,22 +14,40 @@ namespace cpu
 
         namespace detail
         {
-        
+            
+            // Character classification
+
             constexpr bool isWhitespace(char c) noexcept
             {
-                return c == ' ' || c == '\t' || c == '\n' || c == '\r';
+                return (c == ' ')  ||
+                       (c == '\t') ||
+                       (c == '\n') ||
+                       (c == '\r');
             }
-
-            constexpr bool isAlphabetic(char c) noexcept
+            
+            constexpr bool isAlphabetical(char c) noexcept
             {
-                return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
+                return (c >= 'a' && c <= 'z') ||
+                       (c >= 'A' && c <= 'Z');
             }
 
+            constexpr bool isAlphanumerical(char c) noexcept
+            {
+                return (c >= '0' && c <= '9') ||
+                       (c >= 'a' && c <= 'z') ||
+                       (c >= 'A' && c <= 'Z');
+            }
+            
             constexpr bool isDecimal(char c) noexcept
             {
                 return c >= '0' && c <= '9';
             }
 
+            constexpr bool isBinary(char c) noexcept
+            {
+                return c == '0' || c == '1';
+            }
+            
             constexpr bool isOctal(char c) noexcept
             {
                 return c >= '0' && c <= '7';
@@ -37,20 +55,33 @@ namespace cpu
 
             constexpr bool isHexadecimal(char c) noexcept
             {
-                return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f');
-            }
-        
-            constexpr bool isBinary(char c) noexcept
-            {
-                return c == '0' || c == '1';
+                return (c >= '0' && c <= '9') ||
+                       (c >= 'a' && c <= 'f') ||
+                       (c >= 'A' && c <= 'F');
             }
 
-            constexpr bool isAlphaNumeric(char c) noexcept
+            // Identifier validation
+
+            constexpr bool isIdentifierChar(char c) noexcept
             {
-                return isAlphabetic(c) || isDecimal(c);
+                return isAlphanumerical(c) || c == '_';
             }
 
-            constexpr bool isNumberTerminator(char c) noexcept
+            constexpr bool isIdentifierTerminatorChar(char c) noexcept
+            {
+                return isWhitespace(c) ||
+                       c == '\0' ||
+                       c == '+' ||
+                       c == '-' ||
+                       c == '*' ||
+                       c == '/' ||
+                       c == '%' ||
+                       c == '^';
+            }
+
+            // Numeric validation
+
+            constexpr bool isNumberTerminatorChar(char c) noexcept
             {
                 return isWhitespace(c) ||
                     c == '\0' ||
@@ -67,25 +98,7 @@ namespace cpu
                     c == '{'  ||
                     c == '}';
             }
-
-            constexpr bool isIdentifierTerminator(char c) noexcept
-            {
-                return isWhitespace(c) ||
-                    c == '\0' ||
-                    c == '+'  ||
-                    c == '-'  ||
-                    c == '*'  ||
-                    c == '/'  ||
-                    c == '%'  ||
-                    c == '^';
-
-            }
-
-            constexpr bool isIdentifierChar(char c) noexcept
-            {
-                return isAlphaNumeric(c) || c == '_';
-            }
-
+        
         }; // namespace detail
 
 
@@ -128,25 +141,23 @@ namespace cpu
                 {
                     const std::size_t start = position_;
 
-                    consume();
-
                     while (detail::isIdentifierChar(current()))
                         consume();
-                    
-                    if (!detail::isIdentifierTerminator(current()))
+
+                    const bool valid = detail::isIdentifierTerminatorChar(current());
+
+                    if (!valid)
                     {
-                        while (!detail::isIdentifierTerminator(current()))
+                        while (!detail::isIdentifierTerminatorChar(current()))
                             consume();
-                        
-                    
-                        return Token {
-                            Token::Kind::Invalid,
-                            source_.substr(start, position_ - start)
-                        };
                     }
 
-                    return Token {
-                        Token::Kind::Identifier,
+                    return Token
+                    {
+                        valid
+                            ? Token::Kind::Identifier
+                            : Token::Kind::Invalid,
+                        
                         source_.substr(start, position_ - start)
                     };
                 }
@@ -158,46 +169,50 @@ namespace cpu
 
                     bool valid = true;
                     bool floating = false;
-                    bool hasDigits = false;
-                    bool prefixed = false;
 
                     if (current() == '0')
                     {
-                        prefixed = true;
                         consume(); // Consume the '0' character for all non-decimal literals
 
                         switch (current())
                         {
                             case 'b':
                             {
-                                hasDigits = true;
                                 consume();
 
+                                const std::size_t digitStart = position_;
 
                                 while (detail::isBinary(current()))
                                     consume();
                                 
+
+                                valid = position_ != digitStart;
                                 break;
                             }
 
                             case 'o':
                             {
-                                hasDigits = true;
                                 consume();
+
+                                const std::size_t digitStart = position_;
 
                                 while (detail::isOctal(current()))
                                     consume();
-                                
+
+                                valid = position_ != digitStart;
                                 break;
                             }
                             
                             case 'x':
                             {
-                                hasDigits = true;
                                 consume();
-                                
+
+                                const std::size_t digitStart = position_;
+
                                 while (detail::isHexadecimal(current()))
                                     consume();
+
+                                valid = position_ != digitStart;
                                 
                                 break;
                             }
@@ -205,27 +220,22 @@ namespace cpu
                             case '.':
                             {
                                 floating = true;
-                                hasDigits = true;
-                                prefixed = true;
                                 consume();
+
+                                const std::size_t digitStart = position_;
+
+                                while (detail::isDecimal(current()))
+                                    consume();
+
+                                valid = position_ != digitStart;
+                                
                                 break;
                             }
 
                             default:
                             {
-                                prefixed = false;
-
-                                hasDigits = true;
-
-                                if (!detail::isDecimal(current()))
-                                {
-                                    valid = false;
-                                
-                                    while (detail::isDecimal(current()))
-                                        consume();
-                                
-                                }
-
+                                if (detail::isNumberTerminatorChar(current()))
+                                    valid = true;
                                 break;
                             }
                                           
@@ -233,27 +243,26 @@ namespace cpu
                     }
                     else
                     {
-                        while (detail::isDecimal(current()))
-                        {
-                            hasDigits = true;
-                            consume();
+                        consume();
 
-                        }
+                        while (detail::isDecimal(current()))
+                            consume();
 
                         if (current() == '.')
                         {
                             floating = true;
                             consume();
-                        
+
+                            const std::size_t digitStart = position_;
+
                             while (detail::isDecimal(current()))
                                 consume();
+
+                            valid = position_ != digitStart;
                         }
                     }
                     
-                    if (prefixed && !hasDigits)
-                        valid = false;
-                    
-                    if (!detail::isNumberTerminator(current()))
+                    if (!detail::isNumberTerminatorChar(current()))
                     {
                         valid = false;
 
@@ -275,14 +284,7 @@ namespace cpu
                 /// @brief null
                 Token address() noexcept
                 {
-                    const std::size_t start = position_;
-
-                    consume();
-
-
-                    return Token{
-                        Token::Kind::Address,
-                        source_.substr(start, position_ - start)};
+                    return Token{Token::Kind::Invalid};
                 }
 
             public:
@@ -296,37 +298,25 @@ namespace cpu
 
                 Token advance() noexcept
                 {
-
-                    // First char scans
-                    
                     while (detail::isWhitespace(current()))
-                    {
                         consume();
-                    }
+                    
 
                     const char c = current();
 
                     if (c == '\0')
-                    {
                         return Token{Token::Kind::EndOfFile};
-                    }
-
-                    if (detail::isAlphabetic(c))
-                    {
-                        return identifier();
-                    }
                     
-                    if (detail::isDigit(c))
-                    {
+
+                    if (detail::isAlphabetical(c))
+                        return identifier();
+                    
+                    
+                    if (detail::isDecimal(c))
                         return number();
-                    }
-
-                    if (c == '@')
-                    {
-                        return address();
-                    }
+                    
+                    return Token{Token::Kind::Invalid};
                 }
-
         };
     }
 }
