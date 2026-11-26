@@ -6,6 +6,10 @@
 #include <cstddef>
 #include <expected>
 
+#include <unordered_map>
+#include <memory>
+#include <optional>
+
 namespace cpu
 {
 
@@ -14,6 +18,41 @@ namespace cpu
 
         namespace detail
         {
+
+            struct TrieNode
+            {
+                std::unordered_map<char, std::unique_ptr<TrieNode>> children;
+                std::optional<Token::Kind> kind;
+            };
+
+            class SymbolTrie
+            {
+            private:
+                TrieNode root_;
+
+            public:
+                void insert(std::string_view symbol, Token::Kind kind)
+                {
+                    TrieNode *node = &root_;
+
+                    for (char c : symbol)
+                    {
+                        auto &child = node->children[c];
+
+                        if (!child)
+                            child = std::make_unique<TrieNode>();
+
+                        node = child.get();
+                    }
+
+                    node->kind = kind;
+                }
+
+                const TrieNode &root() const noexcept
+                {
+                    return root_;
+                }
+            };
             
             // Character classification
 
@@ -84,21 +123,104 @@ namespace cpu
             constexpr bool isNumberTerminatorChar(char c) noexcept
             {
                 return isWhitespace(c) ||
-                    c == '\0' ||
-                    c == '+'  ||
-                    c == '-'  ||
-                    c == '*'  ||
-                    c == '/'  ||
-                    c == '%'  ||
-                    c == '^'  ||
-                    c == '('  ||
-                    c == ')'  ||
-                    c == '['  ||
-                    c == ']'  ||
-                    c == '{'  ||
-                    c == '}';
+                       c == '\0' ||
+                       c == '+' ||
+                       c == '-' ||
+                       c == '*' ||
+                       c == '/' ||
+                       c == '%' ||
+                       c == '^' ||
+                       c == '&' ||
+                       c == '|' ||
+                       c == '~' ||
+                       c == '!' ||
+                       c == '=' ||
+                       c == '<' ||
+                       c == '>' ||
+                       c == '(' ||
+                       c == ')' ||
+                       c == '[' ||
+                       c == ']' ||
+                       c == '{' ||
+                       c == '}' ||
+                       c == ',' ||
+                       c == ';' ||
+                       c == ':';
             }
-        
+
+            struct Symbol
+            {
+                std::string_view text;
+                Token::Kind kind;
+            };
+
+            constexpr Symbol symbols[] =
+                {
+                    // BITWISE
+                    {"<<", Token::Kind::LeftShift},
+                    {">>", Token::Kind::RightShift},
+                    {"&",  Token::Kind::BitwiseAnd},
+                    {"|",  Token::Kind::BitwiseOr},
+                    {"^",  Token::Kind::BitwiseXor},
+                    {"~",  Token::Kind::BitwiseNot},
+
+                    // COMPARISON
+                    {"==", Token::Kind::Equal},
+                    {"!=", Token::Kind::NotEqual},
+                    {"<",  Token::Kind::Less},
+                    {">",  Token::Kind::Greater},
+                    {"<=", Token::Kind::LessEqual},
+                    {">=", Token::Kind::GreaterEqual},
+
+                    // LOGICAL
+                    {"&&", Token::Kind::LogicalAnd},
+                    {"||", Token::Kind::LogicalOr},
+                    {"!",  Token::Kind::LogicalNot},
+
+                    // ARITHMETIC
+                    {"++", Token::Kind::Increment},
+                    {"--", Token::Kind::Decrement},
+                    {"+",  Token::Kind::Plus},
+                    {"-",  Token::Kind::Minus},
+                    {"*",  Token::Kind::Asterisk},
+                    {"/",  Token::Kind::ForwardSlash},
+                    {"%",  Token::Kind::Percent},
+
+                    // GROUPING
+                    {"(",  Token::Kind::LeftParen},
+                    {")",  Token::Kind::RightParen},
+                    {"[",  Token::Kind::LeftBracket},
+                    {"]",  Token::Kind::RightBracket},
+                    {"{",  Token::Kind::LeftBrace},
+                    {"}",  Token::Kind::RightBrace},
+
+                    // SEPARATOR
+                    {",",  Token::Kind::Comma},
+                    {";",  Token::Kind::Semicolon},
+                    {":",  Token::Kind::Colon},
+
+                    // SPECIAL
+                    {"->",  Token::Kind::ArrowRight},
+                    {"<-",  Token::Kind::ArrowLeft},
+                    {"<->", Token::Kind::ArrowBoth},
+                    {"~>",  Token::Kind::ArrowTildeRight},
+                    {"<~",  Token::Kind::ArrowTildeLeft},
+                    {"<~>", Token::Kind::ArrowTildeBoth},
+                    {"<>",  Token::Kind::ArrowAngleBoth},
+                    {"...", Token::Kind::Ellipsis}
+
+            };
+
+            inline const SymbolTrie symbolTrie = []
+            {
+                SymbolTrie trie;
+
+                for (const auto &symbol : symbols)
+                    trie.insert(symbol.text, symbol.kind);
+
+                return trie;
+            }();
+
         }; // namespace detail
 
 
@@ -144,26 +266,13 @@ namespace cpu
                     while (detail::isIdentifierChar(current()))
                         consume();
 
-                    const bool valid = detail::isIdentifierTerminatorChar(current());
-
-                    if (!valid)
-                    {
-                        while (!detail::isIdentifierTerminatorChar(current()))
-                            consume();
-                    }
-
-                    return Token
-                    {
-                        valid
-                            ? Token::Kind::Identifier
-                            : Token::Kind::Invalid,
-                        
-                        source_.substr(start, position_ - start)
-                    };
+                    return Token{
+                        Token::Kind::Identifier,
+                        source_.substr(start, position_ - start)};
                 }
 
                 /// @brief null
-                Token number() noexcept
+                Token number(Token::Kind kind = Token::Kind::Number) noexcept
                 {
                     const std::size_t start = position_;
 
@@ -271,24 +380,93 @@ namespace cpu
                             consume();
                     }
 
-                    return Token {
+                    return Token
+                    {
                         valid
                             ? (floating
                                 ? Token::Kind::Floating
-                                : Token::Kind::Number)
+                                : kind)
                             : Token::Kind::Invalid,
-                            source_.substr(start, position_ - start)
+                        source_.substr(start, position_ - start)
                     };
                 }
 
                 /// @brief null
                 Token address() noexcept
                 {
-                    return Token{Token::Kind::Invalid};
+                    const std::size_t start = position_;
+
+                    consume(); // Consume '@'
+
+                    if (!detail::isDecimal(current()))
+                    {
+                        while (!detail::isNumberTerminatorChar(current()))
+                            consume();
+
+                        return Token{
+                            Token::Kind::Invalid,
+                            source_.substr(start, position_ - start)};
+                    }
+
+                    Token token = number(Token::Kind::Address);
+
+                    const bool valid = token.kind() == Token::Kind::Address;
+
+                    return Token{
+                        valid ? Token::Kind::Address : Token::Kind::Invalid,
+                        source_.substr(start, position_ - start)};
+                }
+
+                Token symbol() noexcept
+                {
+                    const std::size_t start = position_;
+
+                    const detail::TrieNode *node = &detail::symbolTrie.root();
+
+                    std::optional<Token::Kind> matchedKind;
+                    std::size_t matchedLength = 0;
+
+                    while (position_ < source_.size())
+                    {
+                        auto it = node->children.find(current());
+
+                        if (it == node->children.end())
+                            break;
+
+                        node = it->second.get();
+                        consume();
+
+                        if (node->kind)
+                        {
+                            matchedKind = node->kind;
+                            matchedLength = position_ - start;
+                        }
+                    }
+
+                    if (matchedKind)
+                    {
+                        position_ = start + matchedLength;
+
+                        return Token{
+                            *matchedKind,
+                            source_.substr(start, matchedLength)};
+                    }
+
+                    position_ = start;
+                    consume();
+
+                    return Token{
+                        Token::Kind::Invalid,
+                        source_.substr(start, 1)};
                 }
 
             public:
                 
+                void reset() noexcept
+                {
+                    position_ = 0;
+                }
+
                 /// @brief null
                 explicit Lexer(std::string_view source) noexcept
                     : source_(source)
@@ -315,7 +493,10 @@ namespace cpu
                     if (detail::isDecimal(c))
                         return number();
                     
-                    return Token{Token::Kind::Invalid};
+                    if (c == '@')
+                        return address();
+
+                    return symbol();
                 }
         };
     }

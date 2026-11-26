@@ -16,18 +16,70 @@ namespace cpu
                 /// @brief null
                 enum class Kind
                 {
-                    Number,
-                    Floating,
-                    Identifier,
-                    Hex,
-                    Binary,
-                    Char,
-                    Address,
+                    Number,        // 0 ... 9
+                    Floating,      // 0 ... 9 with decimal point
+                    Identifier,    // variable names
+                    Hex,           // 0x...
+                    Binary,        // 0b...
+                    Char,          // 'a'
+                    Address,       // @variable
 
-                    Invalid,
-                    MalformedLiteral,
-                    Unknown,
-                    EndOfFile
+                    // Bitwise symbols
+                    LeftShift,     // <<
+                    RightShift,    // >>
+                    BitwiseAnd,    // &
+                    BitwiseOr,     // |
+                    BitwiseXor,    // ^
+                    BitwiseNot,    // ~
+
+                    // Logical symbols
+                    LogicalAnd,    // &&
+                    LogicalOr,     // ||
+                    LogicalNot,    // !
+
+                    // Comparison symbols
+                    Equal,         // ==
+                    NotEqual,      // !=
+                    Less,          // <
+                    Greater,       // >
+                    LessEqual,     // <=
+                    GreaterEqual,  // >=
+
+                    // Arithmetic symbols
+                    Increment,     // ++
+                    Decrement,     // --
+                    Plus,          // +
+                    Minus,         // -
+                    Asterisk,      // *
+                    ForwardSlash,  // /
+                    Percent,       // %
+
+                    // Grouping symbols
+                    LeftParen,     // (
+                    RightParen,    // )
+                    LeftBracket,   // [
+                    RightBracket,  // ]
+                    LeftBrace,     // {
+                    RightBrace,    // }
+
+                    Comma,         // ,
+                    Semicolon,     // ;
+                    Colon,         // :
+
+                    // Arrow symbols
+                    ArrowRight,      // ->
+                    ArrowLeft,       // <-
+                    ArrowBoth,       // <->
+                    ArrowTildeRight, // ~>
+                    ArrowTildeLeft,  // <~
+                    ArrowTildeBoth,  // <~>
+                    ArrowAngleBoth,  // <>
+
+                    Invalid,          // N/A
+                    MalformedLiteral, // N/A
+                    Unknown,          // N/A
+                    Ellipsis,         // ...
+                    EndOfFile         // N/A
                 };
 
             private:
