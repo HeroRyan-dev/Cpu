@@ -4,7 +4,7 @@
 #include <cstddef>
 #include <string_view>
 
-#include "cpu/Lexer.hpp"
+#include "cpu/parser/Lexer.hpp"
 
 using namespace cpu::parser;
 
