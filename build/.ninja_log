@@ -40,3 +40,9 @@
 1757	2018	8174437956970593	bin/Debug/Benchmarks.exe	91106351754bf29d
 13	1133	8174438891741474	obj/Cpu/Debug/main.o	c4e0bda7987d928f
 1133	1350	8174438902950368	bin/Debug/Cpu.exe	edab3a86fabd6c89
+5	1571	8175090933525053	obj/Benchmarks/Native/ParserBenchmark.o	ad1fcb61468833aa
+1571	2602	8175090949193351	bin/Native/Benchmarks.exe	a869cd3515f7b218
+8	1515	8175092613315814	obj/Benchmarks/Native/ParserBenchmark.o	ad1fcb61468833aa
+1516	2435	8175092628391838	bin/Native/Benchmarks.exe	a869cd3515f7b218
+8	1540	8175095630028880	obj/Benchmarks/Native/ParserBenchmark.o	ad1fcb61468833aa
+1541	2474	8175095645353507	bin/Native/Benchmarks.exe	a869cd3515f7b218
