@@ -1,19 +1,20 @@
-#include <cstddef>
-#include <expected>
-#include <memory>
-#include <optional>
-#include <string_view>
-#include <unordered_map>
-#include <vector>
+#include <iostream>
+#include "cpu/parser/Lexer.hpp"
 
-#include "cpu/Token.hpp"
-#include "cpu/Lexer.hpp"
 
 int main()
 {
+    std::string_view source = "MOV R0, 10";
 
-    auto tokens = cpu::parser::tokenize("@2+2+0x0000 -> 2x");
-    for (const auto &token : tokens)
-        std::cout << "Token: " << static_cast<int>(token.kind()) << " \"" << token.text() << "\"" << '\n';
+    cpu::lexer::Lexer lexer(source);
 
+    while (true)
+    {
+        auto token = lexer.advance();
+
+        if (token.kind() == cpu::lexer::Token::Kind::EndOfFile)
+            break;
+
+        std::cout << token.text() << '\n';
+    }
 }
