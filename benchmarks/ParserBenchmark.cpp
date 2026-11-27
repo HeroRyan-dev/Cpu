@@ -133,6 +133,17 @@ DEFINE_LEXER_BENCHMARK(
     "(@0x1000 >= 100) || "
     "(~0b10101010 != 0xFF)")
 
+// Cryo's arrow syntax: an expression, "->", then a destination.
+DEFINE_LEXER_BENCHMARK(
+    CryoProgram,
+    "MOVE R1 -> R2\n"
+    "ADD R1 + R2 -> R3\n"
+    "SUB R1 - R2 -> R3\n"
+    "SHIFT R1 << 2 -> R3\n"
+    "SHIFT @0x000 << 2 -> R3\n"
+    "LOAD @0x100 -> R0\n"
+    "STORE R0 -> @0x100\n")
+
 // ============================================================
 // Registration
 // ============================================================
@@ -148,5 +159,6 @@ REGISTER_LEXER_BENCHMARK(Bitwise)
 REGISTER_LEXER_BENCHMARK(Addresses)
 REGISTER_LEXER_BENCHMARK(InvalidInput)
 REGISTER_LEXER_BENCHMARK(LargeExpression)
+REGISTER_LEXER_BENCHMARK(CryoProgram)
 
 BENCHMARK_MAIN();
